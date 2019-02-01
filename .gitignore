@@ -1,0 +1,30 @@
+# max-leuthaeuser/SCROLL
+.DS_Store
+.idea/
+project/
+target/
+*.iml
+*.class
+classes_gen*
+source_gen*
+.cache
+.classpath
+.project
+.settings/
+/bin/
+
+# christopher2007/SCROLL-persistence
+.gitattributes
+.gitlab-ci.yml
+.travis.yml
+README_ORIGINAL.md
+benchmark/
+classes/
+core/
+tests/
+examples/src/main/scala/META-INF/
+examples/src/main/scala/scroll/examples/currency/
+examples/src/main/scala/scroll/examples/APICallsExample.scala
+examples/src/main/scala/scroll/examples/BankExample.scala
+examples/src/main/scala/scroll/examples/ExpressionProblemExample.scala
+examples/src/main/scala/scroll/examples/RobotExample.scala
