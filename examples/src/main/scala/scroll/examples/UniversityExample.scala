@@ -67,12 +67,19 @@ object UniversityExample {
 
       // select
 //      val hansSelect = Database.getInstance().selectNt((new Person("a")).getClass, "name", "hans2").asInstanceOf[Person]
+//      val hansSelect = Database.getInstance().selectNt(new Person("a"), "name", "hans2").asInstanceOf[Person]
       var hansSelect = new Person("a")
       Database.getInstance().selectNt(hansSelect, "name", "hans2")
+//      Database.getInstance().selectNt("scroll.examples.UniversityExample.Person", "name", "hans2")
+//      val hansSelect2 = Database.getInstance().selectNt("name", "hans2").asInstanceOf[Person]
 
       // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
       hansSelect.name = "hans2"
       Database.getInstance().createOrUpdateNT(hansSelect)
+
+//      // Rollen ermitteln
+//      hansSelect.roles()
+//      allPlayers()
 
 
 

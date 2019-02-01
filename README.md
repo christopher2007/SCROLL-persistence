@@ -1,3 +1,10 @@
+## Allgemeines
+
+Persistierungs Implementierung für:  
+https://github.com/max-leuthaeuser/SCROLL
+
+
+
 ## Installationsanleitung
 
 TODO
