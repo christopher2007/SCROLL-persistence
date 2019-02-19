@@ -11,10 +11,7 @@ import scroll.persistence.Util.Serializer;
 import scroll.persistence.Util.SessionFactory;
 
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class Database {
@@ -31,8 +28,12 @@ public class Database {
         return Database.instance;
     }
 
-    public boolean createOrUpdateNT(Object ntObj) throws IllegalAccessException {
+    public boolean createOrUpdateNT(Object ntObj) throws Exception {
 //        Serializer.printAllFields(ntObj);
+
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceNtRt.class.isAssignableFrom(ntObj.getClass()))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -43,22 +44,37 @@ public class Database {
         String className = ntObj.getClass().getSimpleName();
         String classPackage = ntObj.getClass().getCanonicalName();
 
-        // Objekt-Spezifische Informationen
-        int hash = ntObj.hashCode();
+        // UUID ermitteln
+        UUID uuid_;
+        try {
+            Field f = MetaPersistenceNtRt.class.getField("uuid_");
+            f.setAccessible(true);
+            uuid_ = (UUID) f.get(ntObj);
+        }catch(Exception e){
+            // Keine UUID gefunden, was nicht sein darf
+            throw e;
+        }
+
+        // Eventuell gibt es das Objekt schon in der Datenbank, daher Abfrage starten
+//        List<?> allNTs = this.getAllNtByNtEntity("uuid_", uuid_);
+//        List<NT> allNt = this.ntRepository.findAllByHash(hash);
+        Query query = session.createQuery("select nt from NT as nt where nt.uuid_ = :value ");
+        query.setParameter("value", uuid_);
+        List<?> allNTs = query.list();
 
         // Gibt es dieses Objekt in der Datenbank schon?
-        List<?> allNTs = this.getAllNtByNtEntity("hash", hash);
         NT nt;
         if(allNTs.size() == 0){
             // als neue Entität anlegen
             nt = new NT();
             nt.name = classPackage;
-            nt.hash = hash;
+            nt.uuid_ = uuid_;
         }else{
             // die bereits bestehende Entität nutzen
             nt = (NT) allNTs.get(0); // einfach das erste nehmen, hashes sollten nicht öfters existieren
 
             // Alle Variablen löschen, da diese gleich neu gesetzt werden
+            //TODO hohe Laufzeit, sollte man später ändern
             for(Variable var : nt.variables){
                 session.delete(var);
             }
@@ -78,11 +94,17 @@ public class Database {
                 e.printStackTrace();
             }
 
+            // Die Variable `uuid_` ignorieren wir, da sie auf Ebene der Entity selbst gespeichert werden soll
+            if(variableName == "uuid_")
+                continue;
+
             Variable var = new Variable();
             var.entity = nt;
             var.name = variableName;
             var.value = variableValue;
             nt.variables.add(var);
+
+            System.out.println("Variablen Name: " + variableName);
 
             session.saveOrUpdate(var);
         }
@@ -96,24 +118,28 @@ public class Database {
         return false;
     }
 
-    private List<?> getAllNtByNtEntity(String variableName, Object value){
-        // Session und Transaktion ermitteln bzw. initialisieren
-        Session session = SessionFactory.getNewOrOpenSession();
-        SessionFactory.openTransaction();
-
-//        List<NT> allNt = this.ntRepository.findAllByHash(hash);
-        Query query = session.createQuery("select nt from NT as nt where nt."+variableName+" = :value ");
-        query.setParameter("value", value);
-        List<?> list = query.list();
-
-        // Transaktion und Session schließen bzw. committen
-        SessionFactory.closeTransaction();
-//        session.close();
-
-        return list;
-    }
+//    private List<?> getAllNtByNtEntity(String variableName, Object value){
+//        // Session und Transaktion ermitteln bzw. initialisieren
+//        Session session = SessionFactory.getNewOrOpenSession();
+//        SessionFactory.openTransaction();
+//
+////        List<NT> allNt = this.ntRepository.findAllByHash(hash);
+//        Query query = session.createQuery("select nt from NT as nt where nt."+variableName+" = :value ");
+//        query.setParameter("value", value);
+//        List<?> list = query.list();
+//
+//        // Transaktion und Session schließen bzw. committen
+//        SessionFactory.closeTransaction();
+////        session.close();
+//
+//        return list;
+//    }
 
     public void selectNt(Object nt, String variableName, Object value) throws Exception {
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceNtRt.class.isAssignableFrom(nt.getClass()))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
         SessionFactory.openTransaction();
@@ -152,7 +178,16 @@ public class Database {
 //            fieldOriginalNt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
 //            fieldOriginalNt2.set(nt, fieldOriginalNt.get(fieldOriginalNt));
 
-            fieldOriginalNt.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+            // auch `privat` Variablen müssen veränderbar sein
+            fieldOriginalNt.setAccessible(true);
+
+            // Das Feld `uuid_` speziell behandeln,
+            if(fieldOriginalNt.getName() == "uuid_"){
+                fieldOriginalNt.set(nt, selectedNt.uuid_);
+                continue;
+            }
+
+            // normales setzen eines Attributs
             fieldOriginalNt.set(nt, variablesSelected.get(fieldOriginalNt.getName()));
         }
 

@@ -4,13 +4,14 @@ import com.github.fluent.hibernate.cfg.scanner.EntityScanner
 import scroll.internal.Compartment
 import org.hibernate._
 import javax.persistence._
-import scroll.persistence.{Database, HibernateUtil}
+import scroll.persistence.{Database, HibernateUtil, MetaPersistenceCt, MetaPersistenceNtRt}
 import java.util
 
 import scroll.examples.UniversityExample.Person
 
 object UniversityExample {
 
+//  class University extends MetaPersistenceCt {
   class University extends Compartment {
 
     class Student {
@@ -19,7 +20,7 @@ object UniversityExample {
       }
     }
 
-    class Professor {
+    class Professor extends MetaPersistenceNtRt {
       def teach(student: Person): Unit = student match {
         case s if (+s).isPlaying[Student] =>
           val studentName: String = (+student).name
@@ -34,7 +35,7 @@ object UniversityExample {
 
   }
 
-  class Person(var name: String) {
+  class Person(var name: String) extends MetaPersistenceNtRt {
     def talk(): Unit = {
       println("I am a person")
     }
@@ -74,9 +75,16 @@ object UniversityExample {
 //      val hansSelect2 = Database.getInstance().selectNt("name", "hans2").asInstanceOf[Person]
 
       // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
-      hansSelect.name = "hans2"
+      hansSelect.name = "hans3"
       Database.getInstance().createOrUpdateNT(hansSelect)
 
+      // select 2: Wenn kein Eintrag gefunden wird
+      var hansSelect2 = new Person("a")
+      try{
+        Database.getInstance().selectNt(hansSelect2, "name", "hans4")
+      }catch{
+        case _: Throwable  => println("Kein Eintrag gefunden")
+      }
 //      // Rollen ermitteln
 //      hansSelect.roles()
 //      allPlayers()

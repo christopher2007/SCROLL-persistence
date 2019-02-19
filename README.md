@@ -19,10 +19,10 @@ TODO
 1. [x] Primitives Laden von NTs, alle auf ein Mal, Variablen Mapping nur über vorherige Angabe
 1. [x] Komplexeres Speichern von NTs, Duplikatserkennung
 1. [x] Komplexes Laden von NTs, konkrete Ergebnisse zurück geben, Variablen Mapping automatisiert
-1. [ ] Primitives Speichern von CTs, ohne Zusammenhang mit NTs
-1. [ ] Primitives Laden von CTs, ohne Zusammenhang mit NTs
-1. [ ] Komplexes Speichern von CTs, mit Zusammenhang mit NTs
-1. [ ] Komplexes Laden von CTs, mit Zusammenhang mit NTs
+1. [ ] Primitives Speichern von CTs, ohne Zusammenhang mit RTs
+1. [ ] Primitives Laden von CTs, ohne Zusammenhang mit RTs
+1. [ ] Komplexes Speichern von CTs, mit Zusammenhang mit RTs
+1. [ ] Komplexes Laden von CTs, mit Zusammenhang mit RTs
 1. [ ] Primitives Speichern von RTs, ohne Zusammenhang mit NTs
 1. [ ] Primitives Laden von RTs, ohne Zusammenhang mit NTs
 1. [ ] Komplexes Speichern von RTs, mit Zusammenhang mit NTs
@@ -51,7 +51,9 @@ Es gibt für alle wichtigen Bereiche der rollenbasierten Welt angepasste und gut
 von Entitäten. So gibt es eine Entität, die NTs abbilden kann, eine andere für CTs und RTs, welche
 wiederum mit den NTs verknüpft seien können usw.  
 Alles so variabel, dass man später mit richtiger Serialisierung alles ablegen kann.  
--> siehe Klassendiagramm
+-> siehe Klassendiagramm  
+Das UML Klassendiagramm beinhaltet auch die drei Ansätze für den Projektaufbau.
+
 
 
 ## Entscheidungen der Konzeption
@@ -91,6 +93,30 @@ Alles so variabel, dass man später mit richtiger Serialisierung alles ablegen k
   Werten aus der Datenbank komplett überschrieben wird. Die Person heißt hier zwar kurz `Max`,
   aber da alle Klassenvariablen in der nächsten Zeile überschrieben werden, heißt er danach
   dann wieder richtig und hat auch seine alten bekannten Werte.
+- Damit ein Objekt eindeutig in der Datenbank zugeordnet werden kann, muss jedes Objekt in dem
+  Projekt der rollenbasierten Welt einen unique identifier besitzen, wie es in relationalen Ansätzen
+  der Fall ist. Solch eine eindeutige Zuordnung von (UU)ID kann in Java leider nicht realisiert
+  werden, in dem einem bereits initialisieren Objekt nachträglich eine Variable untergeschoben wird,
+  ohne die zugrundeliegende Klasse zu modifizieren. Daher stehen folgende möglichen Ansätze im Raum:
+  1. Das persistierende Framework hält eine Zuordnung im Arbeitsspeicher, welcher zur Laufzeit
+     den hash Wert aus Java immer mit der Datenbank abgleicht und aktuell hält.  
+     Vorteil: weniter Arbeit für den späteren Entwickler  
+     Nachteil: schlechte Laufzeit und ggf später Probleme bei Clonvorgängen oder
+     Überschreiben von Objekten. Allgemein immer dann, wenn ein neuer Hash Wert von
+     Java zugewiesen wird. Kaum Kontrolle für den späteren Entwickler.
+  1. Jede Klasse in Scroll, die später persistiert werden soll, muss von einer Metaklasse erben, welche
+     genau diese Variable für die UUID bereitstellt.  
+     Vorteil: gute Laufzeit  
+     Nachteil: Der Entwickler muss immer vererben und eventuelle Vererbungsketten entstehen
+  1. Man könnte statt Vererbung eine Annotation nutzen, die dieses Attribut für jede zu
+     persistierende Klasse bereitstellt.    
+     Vorteil: gute Laufzeit  
+     Nachteil: Der spätere Entwickler muss stets an die Annotation für alle Klassen denken, die
+     er persistieren möchte. Zudem sehr komplex in der Entwicklung, siehe Projekt `Lombok`, den `AST`
+     zu manipulieren ist nicht ohne.
+- Wird bei einer Abfrage (=`select`) kein Eintrag gefunden, so wird kein Fehler geworfen, sondern
+  das zugrundeliegende Objekt hat `null` in der `uuid_`. So kann man darauf abfragen und auf diesem
+  Weg prüfen, ob ein Ergebnis gefunden wurde.
 
 
 
@@ -111,3 +137,13 @@ Alles so variabel, dass man später mit richtiger Serialisierung alles ablegen k
   Also leider alles sehr stark limitiert in den Möglichkeiten. So sind manche Lösungen sehr
   schwerfällig und oft nicht unbedingt schön in der Programmierung.  
   Das nervigste: Es geht nur HQL als Abfragesprache, keine Spring oder JPA Repositories
+
+
+
+## UML Klassendiagramm
+
+Das UML Klassendiagramm liegt dem Projekt im Ordner `/uml` bei.  
+Es liegt als XML (source Datei) und als PDF (export) vor.  
+Die Nummer am Ende der Dateien ist die Version des Exports.  
+Erstellt wurde das Diagramm mit dem Tool https://www.draw.io/  
+In den Dokumenten liegen auch die drei Hauptansätze vor.

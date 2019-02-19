@@ -11,7 +11,7 @@ public class Variable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", updatable = false, nullable = false)
+    @Column(name = "id", updatable = false, nullable = false, unique = true)
     public Long id;
 
     @Column(nullable=false)
