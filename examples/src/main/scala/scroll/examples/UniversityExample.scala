@@ -4,7 +4,7 @@ import com.github.fluent.hibernate.cfg.scanner.EntityScanner
 import scroll.internal.Compartment
 import org.hibernate._
 import javax.persistence._
-import scroll.persistence.{Database, HibernateUtil, MetaPersistenceCt, MetaPersistenceNtRt}
+import scroll.persistence.{Database, MetaPersistenceCt, MetaPersistenceNtRt}
 import java.util
 
 import scroll.examples.UniversityExample.Person

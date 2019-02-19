@@ -4,7 +4,6 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import scroll.persistence.Model.NTRepository;
 import scroll.persistence.Model.NT;
 import scroll.persistence.Model.Variable;
 import scroll.persistence.Util.Serializer;
@@ -15,9 +14,6 @@ import java.util.*;
 
 @Service
 public class Database {
-
-    @Autowired
-    private NTRepository ntRepository;
 
     // Singelton Pattern
     private static Database instance;
@@ -190,9 +186,6 @@ public class Database {
             // normales setzen eines Attributs
             fieldOriginalNt.set(nt, variablesSelected.get(fieldOriginalNt.getName()));
         }
-
-        // Den Hashcode des übergebenen NTs neu setzen, damit das Objekt gleich dem alten ist und nicht als neues gild
-        //TODO
 
         // Transaktion und Session schließen bzw. committen
         SessionFactory.closeTransaction();

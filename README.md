@@ -7,7 +7,15 @@ https://github.com/max-leuthaeuser/SCROLL
 
 ## Installationsanleitung
 
-TODO
+Folgende Projekte müssen in ein und den selben Ordner kopiert werden:
+
+- zuerst: https://github.com/max-leuthaeuser/SCROLL
+- nachfolgend: https://github.com/christopher2007/SCROLL-persistence
+
+Danach das so entstandene Projekt in einer IDE öffnen (empfohlen eclipse oder IntelliJ).  
+Nun das scala Projekt aufbauen lassen und die Dependencies laden.  
+Zu guter letzt eines der Beispielprojekte starten (empfohlen `UniversityExample`).  
+Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://github.com/max-leuthaeuser/SCROLL
 
 ## Stand
 
