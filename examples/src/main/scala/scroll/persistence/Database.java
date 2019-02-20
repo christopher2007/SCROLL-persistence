@@ -4,12 +4,14 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import scroll.examples.UniversityExample;
 import scroll.persistence.Model.NT;
 import scroll.persistence.Model.Variable;
 import scroll.persistence.Util.Serializer;
 import scroll.persistence.Util.SessionFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Service
@@ -24,7 +26,47 @@ public class Database {
         return Database.instance;
     }
 
+    public boolean createOrUpdateRT(Object rtObj) throws Exception {
+//        Serializer.printAllFields(rtObj);
+
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceNtRt.class.isAssignableFrom(rtObj.getClass()))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
+        System.out.println("--------------------------------");
+
+        Serializer.printAllFields(rtObj);
+
+        System.out.println("--------------------------------");
+
+        // Positive Rückgabe
+        return true;
+    }
+
+    /**
+     * Ruft die gleiche Methode der Klasse auf und setzt dabei den Parameter `alsoSavePlayingRTs` auf `false`.
+     * @param ntObj
+     * @return
+     * @throws Exception
+     */
     public boolean createOrUpdateNT(Object ntObj) throws Exception {
+        return this.createOrUpdateNT(ntObj, false);
+    }
+
+    /**
+     * Speichert erstmalig oder updatet einen bereits bestehenden NT in der Datenbank.
+     * Wird ein NT oder ein RT gespeichert und existiert der Spielpartner bereits in der Datenbank, so wird diese Spielbeziehung mit gespeichert.
+     * Speichert man allerdings einen NT oder einen RT, der zwar in der Laufzeit des Programms einen Spielpartner hat, dieser aber noch nicht in der
+     * Datenbank existiert, so wird diese Information nicht mit gespeichert und die Datenbank weiß nichts über die Spielbeziehung.
+     * Erst, wenn der Partner auch gespeichert wird, wird die Spielbeziehung nachgetragen.
+     * Spielbeziehungen müssen somit nicht selbst gespeichert werden, dies wird automatisch erkannt.
+     *
+     * @param ntObj Der zu speichernde NT
+     * @param alsoSavePlayingRTs true=für jeden RT Spielpartner wird die Methode `createOrUpdateRT` aufgerufen; false=RT Spielpartner werden ignoriert
+     * @return
+     * @throws Exception
+     */
+    public boolean createOrUpdateNT(Object ntObj, boolean alsoSavePlayingRTs) throws Exception {
 //        Serializer.printAllFields(ntObj);
 
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
@@ -105,13 +147,25 @@ public class Database {
             session.saveOrUpdate(var);
         }
 
+        // Gibt es in der Datenbank RT's, die aktuell zur Laufzeit gespielt werden und somit ein UPDATE für die Spielbeziehung bekommen müssen?
+        try{
+//            UniversityExample.Person test = new UniversityExample.Person("hallo");
+            Method method = ntObj.getClass().getMethod("roles");
+            Object test = method.invoke(ntObj);
+            System.out.println("aaaaaaaaaaaa = " + test);
+        }catch(Exception e){
+            throw e;
+        }
+
+        // Eigentlichen NT speichern
         session.saveOrUpdate(nt);
 
         // Transaktion und Session schließen bzw. committen
         SessionFactory.closeTransaction();
 //        session.close();
 
-        return false;
+        // Positive Rückgabe
+        return true;
     }
 
 //    private List<?> getAllNtByNtEntity(String variableName, Object value){

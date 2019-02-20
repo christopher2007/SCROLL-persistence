@@ -41,7 +41,10 @@ Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://gith
 ## Aktuelle Limitierungen
 
 - kein Spring Kontext möglich, daher leider keine Repositories
-- 
+- Läd man zwei NT aus der Datenbank, die die gleiche Instanz von RT gespielt haben, so erhält man
+  zwei NT zurück, von denen jeder einen eigenen RT besitzt. Diese beiden RT haben zwar die gleiche
+  UUID und werden von der `Database` Klasse auch als gleich angesehen, sind in Scala bzw. Java
+  jedoch streng genommen zwei unterschiedliche Objekte.
 
 
 
@@ -86,14 +89,14 @@ Das UML Klassendiagramm beinhaltet auch die drei Ansätze für den Projektaufbau
   variabel sein und kann aktuell noch nicht festgelegt werden.  
   Daher war eine mögliche Lösung, ein Dummy Objekt zu erzeugen, nur um davon die Klasse per
   `getClass()` zu bekommen und das Objekt selbst danach wegzuwerfen:
-  ```
+  ```scala
   val hansSelect = Database.getInstance().selectNt((new Person("Max")).getClass, "name", "Hans Jürgen").asInstanceOf[Person]
   ```
   Hier muss das Ergebnis auch noch auf die korrekte Klasse gecastet werden und auch in eine
   weitere Instanz der Klasse gespeichert werden. Und da das nicht nur umständlich ist, sondern
   Java auch nicht bekannt für gutes Ressourcenmanagement des Arbeitsspeichers ist, habe ich mich
   für folgenden dritten und auch letzten Ansatz entschieden:
-  ```
+  ```scala
   var hansSelect = new Person("Max")
   Database.getInstance().selectNt(hansSelect, "name", "Hans Jürgen")
   ```

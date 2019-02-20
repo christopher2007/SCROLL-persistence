@@ -13,8 +13,10 @@ object UniversityExample {
 
 //  class University extends MetaPersistenceCt {
   class University extends Compartment {
+    var country = "Deutschland"
 
-    class Student {
+    class Student extends MetaPersistenceNtRt {
+      var foo = 1
       def talk(): Unit = {
         println("I am a student")
       }
@@ -44,12 +46,6 @@ object UniversityExample {
   def main(args: Array[String]): Unit = {
     println("===== START =====");
 
-////    val classes: List[Class[_]] = List(classOf[Person], classOf[Student])
-//        val classes: List[Class[_]] = List(classOf[Person])
-//    HibernateUtil.buildSessionFactory(classes)
-//    val sessionF: SessionFactory = HibernateUtil.getSessionFactory
-//    val session: Session = sessionF.openSession()
-
     val test = new University {
       val uwe = new Person("uwe")
 
@@ -57,6 +53,7 @@ object UniversityExample {
 
 
 
+      // === NT
 
       // insert
       val hans = new Person("hans")
@@ -85,13 +82,33 @@ object UniversityExample {
       }catch{
         case _: Throwable  => println("Kein Eintrag gefunden")
       }
-//      // Rollen ermitteln
+
+      // delete
+      //TODO
+
+
+
+
+      // === Rollen ermitteln
 //      hansSelect.roles()
 //      allPlayers()
 
 
 
+      // === RT
 
+      // insert
+      val student2 = new Student
+      val student3 = new Student
+      hans play student2
+      hans play student3
+      uwe play student2
+      println("hans.roles() = " + hans.roles())
+      println("uwe.roles() = " + uwe.roles())
+      println("allPlayers = " + allPlayers)
+      +hans talk()
+      Database.getInstance().createOrUpdateRT(hans)
+      Database.getInstance().createOrUpdateRT(student2)
 
 
 
@@ -109,36 +126,8 @@ object UniversityExample {
       println("Core equals core playing a role: " + (+uwe == uwe))
 
       +uwe teach hans
-
-      // persist example
-
-//      // Klassen ermitteln
-////      val classes: util.List[Class[_]] = EntityScanner.scanPackages("scroll").result
-//      val classes: List[Class[_]] = List(classOf[Person], classOf[Student])
-//      HibernateUtil.buildSessionFactory(classes)
-//
-//      // short
-////      val session: Session = HibernateUtil.getSessionFactory.openSession()
-//
-//      // long
-//      val sessionF: SessionFactory = HibernateUtil.getSessionFactory
-//      val session: Session = sessionF.openSession()
-
-//      session.beginTransaction()
-//      val p = new Person("Heinrich")
-//      p.something = "1"
-//      session.save(p)
-//      session.save(student)
-//      session.getTransaction().commit()
-//      println("FINISHED")
-//
-//      HibernateUtil.shutdown()
     }
 
-//    session.beginTransaction()
-//    session.save(test)
-//    session.getTransaction().commit()
-
-    System.exit(0)
+    System.exit(0) // anderenfalls beendet die Anwendung nicht
   }
 }
