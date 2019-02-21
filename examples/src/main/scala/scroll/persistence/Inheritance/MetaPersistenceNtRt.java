@@ -1,4 +1,4 @@
-package scroll.persistence;
+package scroll.persistence.Inheritance;
 
 import java.util.UUID;
 

@@ -1,8 +1,6 @@
-package scroll.persistence;
+package scroll.persistence.Inheritance;
 
 import scroll.internal.Compartment;
-
-import java.util.UUID;
 
 public abstract class MetaPersistenceCt extends MetaPersistenceNtRt implements Compartment {
 
