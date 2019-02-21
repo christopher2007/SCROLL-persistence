@@ -8,7 +8,7 @@ import scroll.persistence.Database
 import java.util
 
 import scroll.examples.UniversityExample.Person
-import scroll.persistence.Inheritance.{MetaPersistenceNt, MetaPersistenceRt}
+import scroll.persistence.Inheritance.{MetaPersistenceCt, MetaPersistenceNt, MetaPersistenceRt}
 
 object UniversityExample {
 

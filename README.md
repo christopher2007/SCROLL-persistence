@@ -19,7 +19,24 @@ Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://gith
 
 ### Erweiterung von SCROLL
 
-Die Klasse `Compartment` muss erweitert werden:  
+Die Klasse `Compartment` mit folgender Methode erweitern:  
+  
+```scala
+/**
+ * get all rigid types of the hash from one role type.
+ * @param hash
+ * @return
+ */
+def getRolesFromHash(hash: Int): Seq[AnyRef] = {
+    plays.allPlayers.foreach { p =>
+        if (p.hashCode() == hash)
+        {
+          return p.predecessors()
+        }
+    }
+    null
+}
+```
 
 
 ## Stand

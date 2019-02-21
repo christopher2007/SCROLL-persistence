@@ -2,6 +2,7 @@ package scroll.persistence;
 
 import scroll.internal.Compartment;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
+import scroll.persistence.Inheritance.MetaPersistenceRt;
 import scroll.persistence.Util.Serializer;
 
 import java.lang.reflect.Field;
@@ -22,7 +23,7 @@ public class _RT {
 //        Serializer.printAllFields(rtObj);
 
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(rtObj.getClass()))
+        if(!MetaPersistenceRt.class.isAssignableFrom(rtObj.getClass()))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         System.out.println("--------------------------------");
@@ -50,6 +51,7 @@ public class _RT {
 //        String valueOfMyColor = (String) f.get(rtObj);
         Compartment compartment = (Compartment) f.get(rtObj);
         System.out.println(compartment.allPlayers());
+        System.out.println(compartment.getRolesFromHash(rtObj.hashCode()));
 
         System.out.println("--------------------------------");
 
