@@ -8,7 +8,7 @@ import scroll.persistence.Database
 import java.util
 
 import scroll.examples.UniversityExample.Person
-import scroll.persistence.Inheritance.MetaPersistenceNtRt
+import scroll.persistence.Inheritance.{MetaPersistenceNt, MetaPersistenceRt}
 
 object UniversityExample {
 
@@ -16,14 +16,14 @@ object UniversityExample {
   class University extends Compartment {
     var country = "Deutschland"
 
-    class Student extends MetaPersistenceNtRt {
+    class Student extends MetaPersistenceRt {
       var foo = 1
       def talk(): Unit = {
         println("I am a student")
       }
     }
 
-    class Professor extends MetaPersistenceNtRt {
+    class Professor extends MetaPersistenceRt {
       def teach(student: Person): Unit = student match {
         case s if (+s).isPlaying[Student] =>
           val studentName: String = (+student).name
@@ -38,7 +38,7 @@ object UniversityExample {
 
   }
 
-  class Person(var name: String) extends MetaPersistenceNtRt {
+  class Person(var name: String) extends MetaPersistenceNt {
     def talk(): Unit = {
       println("I am a person")
     }
@@ -58,28 +58,28 @@ object UniversityExample {
 
       // insert
       val hans = new Person("hans")
-      Database.getInstance().nt().createOrUpdate(hans)
+      Database.nt().createOrUpdate(hans)
 
       // update
       hans.name = "hans2"
-      Database.getInstance().nt().createOrUpdate(hans)
+      Database.nt().createOrUpdate(hans)
 
       // select
-//      val hansSelect = Database.getInstance().select((new Person("a")).getClass, "name", "hans2").asInstanceOf[Person]
-//      val hansSelect = Database.getInstance().select(new Person("a"), "name", "hans2").asInstanceOf[Person]
+//      val hansSelect = Database.select((new Person("a")).getClass, "name", "hans2").asInstanceOf[Person]
+//      val hansSelect = Database.select(new Person("a"), "name", "hans2").asInstanceOf[Person]
       var hansSelect = new Person("a")
-      Database.getInstance().nt().select(hansSelect, "name", "hans2")
-//      Database.getInstance().select("scroll.examples.UniversityExample.Person", "name", "hans2")
-//      val hansSelect2 = Database.getInstance().select("name", "hans2").asInstanceOf[Person]
+      Database.nt().select(hansSelect, "name", "hans2")
+//      Database.select("scroll.examples.UniversityExample.Person", "name", "hans2")
+//      val hansSelect2 = Database.select("name", "hans2").asInstanceOf[Person]
 
       // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
       hansSelect.name = "hans3"
-      Database.getInstance().nt().createOrUpdate(hansSelect)
+      Database.nt().createOrUpdate(hansSelect)
 
       // select 2: Wenn kein Eintrag gefunden wird
       var hansSelect2 = new Person("a")
       try{
-        Database.getInstance().nt().select(hansSelect2, "name", "hans4")
+        Database.nt().select(hansSelect2, "name", "hans4")
       }catch{
         case _: Throwable  => println("Kein Eintrag gefunden")
       }
@@ -108,8 +108,9 @@ object UniversityExample {
       println("uwe.roles() = " + uwe.roles())
       println("allPlayers = " + allPlayers)
       +hans talk()
-      Database.getInstance().rt().createOrUpdate(hans)
-      Database.getInstance().rt().createOrUpdate(student2)
+//      Database.rt().createOrUpdate(hans)
+      Database.rt().createOrUpdate(student2)
+
 
 
 

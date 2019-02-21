@@ -17,6 +17,11 @@ Nun das scala Projekt aufbauen lassen und die Dependencies laden.
 Zu guter letzt eines der Beispielprojekte starten (empfohlen `UniversityExample`).  
 Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://github.com/max-leuthaeuser/SCROLL
 
+### Erweiterung von SCROLL
+
+Die Klasse `Compartment` muss erweitert werden:  
+
+
 ## Stand
 
 1. [x] Konzeption und Klassenentwurf, Ergebnis: Klassendiagramm

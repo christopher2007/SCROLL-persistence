@@ -2,25 +2,24 @@ package scroll.persistence;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import scroll.persistence.Inheritance.MetaPersistenceNtRt;
+import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Model.Variable;
 import scroll.persistence.Util.Serializer;
 import scroll.persistence.Util.SessionFactory;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 
-public class NT {
+public class _NT {
 
     // Singelton Pattern
-    private static NT instance;
-    private NT () {}
+    private static _NT instance;
+    private _NT () {}
     // protected, nur für aktuelles Package
-    protected static NT getInstance () {
-        if (NT.instance == null)
-            NT.instance = new NT ();
-        return NT.instance;
+    protected static _NT getInstance () {
+        if (_NT.instance == null)
+            _NT.instance = new _NT ();
+        return _NT.instance;
     }
 
 
@@ -51,7 +50,7 @@ public class NT {
 //        Serializer.printAllFields(ntObj);
 
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNtRt.class.isAssignableFrom(ntObj.getClass()))
+        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
@@ -66,7 +65,7 @@ public class NT {
         // UUID ermitteln
         UUID uuid_;
         try {
-            Field f = MetaPersistenceNtRt.class.getField("uuid_");
+            Field f = MetaPersistenceNt.class.getField("uuid_");
             f.setAccessible(true);
             uuid_ = (UUID) f.get(ntObj);
         }catch(Exception e){
@@ -128,15 +127,15 @@ public class NT {
             session.saveOrUpdate(var);
         }
 
-        // Gibt es in der Datenbank RT's, die aktuell zur Laufzeit gespielt werden und somit ein UPDATE für die Spielbeziehung bekommen müssen?
-        try{
-//            UniversityExample.Person test = new UniversityExample.Person("hallo");
-            Method method = ntObj.getClass().getMethod("roles");
-            Object test = method.invoke(ntObj);
-            System.out.println("aaaaaaaaaaaa = " + test);
-        }catch(Exception e){
-            throw e;
-        }
+//        // Gibt es in der Datenbank RT's, die aktuell zur Laufzeit gespielt werden und somit ein UPDATE für die Spielbeziehung bekommen müssen?
+//        try{
+////            UniversityExample.Person test = new UniversityExample.Person("hallo");
+//            Method method = ntObj.getClass().getMethod("roles");
+//            Object test = method.invoke(ntObj);
+//            System.out.println("aaaaaaaaaaaa = " + test);
+//        }catch(Exception e){
+//            throw e;
+//        }
 
         // Eigentlichen NT speichern
         session.saveOrUpdate(nt);
@@ -166,9 +165,17 @@ public class NT {
 //        return list;
 //    }
 
+    /**
+     * Selektiert einen NT.
+     *
+     * @param nt Die Instanz eines Natürlichen Typen, auf den die Ergebnisse geschrieben werden sollen
+     * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
+     * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
+     * @throws Exception
+     */
     public void select(Object nt, String variableName, Object value) throws Exception {
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNtRt.class.isAssignableFrom(nt.getClass()))
+        if(!MetaPersistenceNt.class.isAssignableFrom(nt.getClass()))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren

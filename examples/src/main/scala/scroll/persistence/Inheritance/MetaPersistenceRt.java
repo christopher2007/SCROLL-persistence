@@ -1,10 +1,8 @@
 package scroll.persistence.Inheritance;
 
-import scroll.internal.Compartment;
-
 import java.util.UUID;
 
-public abstract class MetaPersistenceCt implements Compartment {
+public abstract class MetaPersistenceRt {
 
     /**
      * public, da man es mir Reflection eh jederzeit ändern könnte und vor allem, da es so einfacher geht.
