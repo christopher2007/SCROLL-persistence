@@ -73,7 +73,7 @@ object UniversityExample {
 //      Database.select("scroll.examples.UniversityExample.Person", "name", "hans2")
 //      val hansSelect2 = Database.select("name", "hans2").asInstanceOf[Person]
       var hansSelectList: util.List[UniversityExample.Person] = Database.nt.select(
-        classOf[UniversityExample.Person], "name", "hans").asInstanceOf[util.List[UniversityExample.Person]]
+        classOf[UniversityExample.Person], "name", "hans2").asInstanceOf[util.List[UniversityExample.Person]]
       System.out.println("Anzahl der gefundenen NTs: " + hansSelectList.size())
 
       // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
@@ -82,7 +82,10 @@ object UniversityExample {
       Database.nt.createOrUpdate(hansSelect)
 
       // delete
-      Database.nt.delete(hansSelect)
+      if(Database.nt.delete(hansSelect))
+        println("deleted successfully")
+      else
+        println("did not delete a entity")
 
 
 

@@ -4,16 +4,11 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 import org.springframework.objenesis.Objenesis;
 import org.springframework.objenesis.ObjenesisStd;
-import scroll.examples.UniversityExample;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Model.NT;
 import scroll.persistence.Model.Variable;
-import scroll.persistence.Util.InstanceCreator;
-import scroll.persistence.Util.ListHelper;
-import scroll.persistence.Util.Serializer;
-import scroll.persistence.Util.SessionFactory;
+import scroll.persistence.Util.*;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -47,29 +42,17 @@ public class _NT {
         Session session = SessionFactory.getNewOrOpenSession();
         SessionFactory.openTransaction();
 
-        // Klassen-Spezifische Informationen
-        Class class_ = ntObj.getClass();
-        String className = ntObj.getClass().getSimpleName();
-        String classPackage = ntObj.getClass().getCanonicalName();
+        // Klassen-Spezifische Informationen ermitteln
+        BasicClassInformation classInfos = new BasicClassInformation(ntObj);
 
         // UUID ermitteln
-        UUID uuid_;
-        try {
-//            Field f = MetaPersistenceNt.class.getField("uuid_");
-//            Field f = ntObj.getClass().getField("uuid_");
-            Field f = ntObj.getClass().getDeclaredField("uuid_");
-            f.setAccessible(true);
-            uuid_ = (UUID) f.get(ntObj);
-        }catch(Exception e){
-            // Keine UUID gefunden, was nicht sein darf
-            throw e;
-        }
+        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
 
         // Eventuell gibt es das Objekt schon in der Datenbank, daher Abfrage starten
 //        List<?> allNTs = this.getAllNtByNtEntity("uuid_", uuid_);
 //        List<NT> allNt = this.ntRepository.findAllByHash(hash);
-        Query query = session.createQuery("select nt from NT as nt where nt.uuid_ = :value ");
-        query.setParameter("value", uuid_);
+        Query query = session.createQuery("select nt from NT as nt where nt.uuid_ = :uuid ");
+        query.setParameter("uuid", uuid_);
         List<?> allNTs = query.list();
 
         // Gibt es dieses Objekt in der Datenbank schon?
@@ -77,7 +60,7 @@ public class _NT {
         if(allNTs.size() == 0){
             // als neue Entität anlegen
             nt = new scroll.persistence.Model.NT();
-            nt.name = classPackage;
+            nt.classPackage = classInfos.classPackage;
             nt.uuid_ = uuid_;
         }else{
             // die bereits bestehende Entität nutzen
@@ -95,7 +78,6 @@ public class _NT {
         // Über alle Variablen des übergebenen NT iterieren und diese in der Datenbank speichern
         Collection<Field> fields = Serializer.getAllFields(ntObj.getClass());
         for(Field field : fields){
-//            String className = field.getDeclaringClass().getSimpleName();
             field.setAccessible(true); // auch `privat` Variablen müssen lesbar und schreibbar sein
             String variableName = field.getName();
             Object variableValue = null;
@@ -234,11 +216,14 @@ public class _NT {
         Session session = SessionFactory.getNewOrOpenSession();
         SessionFactory.openTransaction();
 
+        // Klassen-Spezifische Informationen ermitteln
+        BasicClassInformation classInfos = new BasicClassInformation(ntObjClass);
+
         // Entität aus der Datenbank ermitteln
 //        List<NT> allNt = this.ntRepository.findAllByHash(hash);
         Query query = session.createQuery("select nt from NT as nt inner join nt.variables as variables " +
-                "where nt.name = :className and variables.name = :name and variables.value = :value ");
-        query.setParameter("className", ntObjClass.getCanonicalName());
+                "where nt.classPackage = :classPackage and variables.name = :name and variables.value = :value ");
+        query.setParameter("classPackage", classInfos.classPackage);
         query.setParameter("name", variableName);
         query.setParameter("value", value);
         List<?> allNTs = query.list();
@@ -309,7 +294,26 @@ public class _NT {
      * @throws Exception
      */
     public boolean delete(Object ntObj) throws Exception {
-        //TODO
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
+        // Session und Transaktion ermitteln bzw. initialisieren
+        Session session = SessionFactory.getNewOrOpenSession();
+        SessionFactory.openTransaction();
+
+        // UUID ermitteln
+        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
+
+        // DELETE auf der Datenbank ausführen
+        Query query = session.createQuery("delete from NT as nt where nt.uuid_ = :uuid ");
+        query.setParameter("uuid", uuid_);
+        int numberRowsChanged = query.executeUpdate();
+
+        // Wurde etwas gelöscht?
+        if(numberRowsChanged > 0)
+            // Mindestens einen Fund, und da UUID UNIQUE ist, wohl genau einen
+            return true;
 
         // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
         return false;

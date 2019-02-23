@@ -1,6 +1,9 @@
 package scroll.persistence.Model;
 
 //import javax.persistence.Entity;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
 import javax.persistence.*;
 import java.util.Set;
 import java.util.UUID;
@@ -16,9 +19,10 @@ abstract public class Entity {
     public Long id;
 
     @Column(nullable=false)
-    public String name;
+    public String classPackage;
 
     @OneToMany(mappedBy="entity")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     public Set<Variable> variables;
 
     @Column(columnDefinition = "BINARY(16)", nullable=false, unique = true)
