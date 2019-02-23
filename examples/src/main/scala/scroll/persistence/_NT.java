@@ -310,6 +310,10 @@ public class _NT {
         query.setParameter("uuid", uuid_);
         int numberRowsChanged = query.executeUpdate();
 
+        // Transaktion und Session schließen bzw. committen
+        SessionFactory.closeTransaction();
+//        session.close();
+
         // Wurde etwas gelöscht?
         if(numberRowsChanged > 0)
             // Mindestens einen Fund, und da UUID UNIQUE ist, wohl genau einen

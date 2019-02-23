@@ -60,14 +60,17 @@ var uuid_ = java.util.UUID.randomUUID
 1. [x] Primitives Laden von NTs, alle auf ein Mal, Variablen Mapping nur über vorherige Angabe
 1. [x] Komplexeres Speichern von NTs, Duplikatserkennung
 1. [x] Komplexes Laden von NTs, konkrete Ergebnisse zurück geben, Variablen Mapping automatisiert
+1. [x] Löschen von NTs
 1. [ ] Primitives Speichern von CTs, ohne Zusammenhang mit RTs
 1. [ ] Primitives Laden von CTs, ohne Zusammenhang mit RTs
 1. [ ] Komplexes Speichern von CTs, mit Zusammenhang mit RTs
 1. [ ] Komplexes Laden von CTs, mit Zusammenhang mit RTs
+1. [ ] Löschen von CTs
 1. [ ] Primitives Speichern von RTs, ohne Zusammenhang mit NTs
 1. [ ] Primitives Laden von RTs, ohne Zusammenhang mit NTs
 1. [ ] Komplexes Speichern von RTs, mit Zusammenhang mit NTs
 1. [ ] Komplexes Laden von RTs, mit Zusammenhang mit NTs
+1. [ ] Löschen von RTs
 
 
 
