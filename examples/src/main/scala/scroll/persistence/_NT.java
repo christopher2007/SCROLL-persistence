@@ -2,11 +2,18 @@ package scroll.persistence;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.objenesis.Objenesis;
+import org.springframework.objenesis.ObjenesisStd;
+import scroll.examples.UniversityExample;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
+import scroll.persistence.Model.NT;
 import scroll.persistence.Model.Variable;
+import scroll.persistence.Util.InstanceCreator;
+import scroll.persistence.Util.ListHelper;
 import scroll.persistence.Util.Serializer;
 import scroll.persistence.Util.SessionFactory;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -22,31 +29,14 @@ public class _NT {
         return _NT.instance;
     }
 
-
-    /**
-     * Ruft die gleiche Methode der Klasse auf und setzt dabei den Parameter `alsoSavePlayingRTs` auf `false`.
-     * @param ntObj
-     * @return
-     * @throws Exception
-     */
-    public boolean createOrUpdate(Object ntObj) throws Exception {
-        return this.createOrUpdate(ntObj, false);
-    }
-
     /**
      * Speichert erstmalig oder updatet einen bereits bestehenden NT in der Datenbank.
-     * Wird ein NT oder ein RT gespeichert und existiert der Spielpartner bereits in der Datenbank, so wird diese Spielbeziehung mit gespeichert.
-     * Speichert man allerdings einen NT oder einen RT, der zwar in der Laufzeit des Programms einen Spielpartner hat, dieser aber noch nicht in der
-     * Datenbank existiert, so wird diese Information nicht mit gespeichert und die Datenbank weiß nichts über die Spielbeziehung.
-     * Erst, wenn der Partner auch gespeichert wird, wird die Spielbeziehung nachgetragen.
-     * Spielbeziehungen müssen somit nicht selbst gespeichert werden, dies wird automatisch erkannt.
+     * Kein Beachten von CTs oder RTs, nur der reine NT. Auch keine Spielrelationen.
      *
      * @param ntObj Der zu speichernde NT
-     * @param alsoSavePlayingRTs true=für jeden RT Spielpartner wird die Methode `createOrUpdateRT` aufgerufen; false=RT Spielpartner werden ignoriert
-     * @return
      * @throws Exception
      */
-    public boolean createOrUpdate(Object ntObj, boolean alsoSavePlayingRTs) throws Exception {
+    public void createOrUpdate(Object ntObj) throws Exception {
 //        Serializer.printAllFields(ntObj);
 
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
@@ -65,7 +55,9 @@ public class _NT {
         // UUID ermitteln
         UUID uuid_;
         try {
-            Field f = MetaPersistenceNt.class.getField("uuid_");
+//            Field f = MetaPersistenceNt.class.getField("uuid_");
+//            Field f = ntObj.getClass().getField("uuid_");
+            Field f = ntObj.getClass().getDeclaredField("uuid_");
             f.setAccessible(true);
             uuid_ = (UUID) f.get(ntObj);
         }catch(Exception e){
@@ -100,10 +92,11 @@ public class _NT {
         nt.variables = new HashSet<Variable>(); // auch bei bereits bestehenden Entitäten leeren = alles löschen
         session.saveOrUpdate(nt);
 
+        // Über alle Variablen des übergebenen NT iterieren und diese in der Datenbank speichern
         Collection<Field> fields = Serializer.getAllFields(ntObj.getClass());
         for(Field field : fields){
 //            String className = field.getDeclaringClass().getSimpleName();
-            field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+            field.setAccessible(true); // auch `privat` Variablen müssen lesbar und schreibbar sein
             String variableName = field.getName();
             Object variableValue = null;
             try {
@@ -112,30 +105,22 @@ public class _NT {
                 e.printStackTrace();
             }
 
-            // Die Variable `uuid_` ignorieren wir, da sie auf Ebene der Entity selbst gespeichert werden soll
+            // Die Variable `uuid_` ignorieren wir, da sie auf Ebene der NT-Entity selbst gespeichert werden soll
             if(variableName == "uuid_")
                 continue;
 
+            // Eine Variablen Entity erstellen
             Variable var = new Variable();
             var.entity = nt;
             var.name = variableName;
             var.value = variableValue;
             nt.variables.add(var);
 
-            System.out.println("Variablen Name: " + variableName);
+//            System.out.println("Variablen Name: " + variableName);
 
+            // Variablen Entity speichern
             session.saveOrUpdate(var);
         }
-
-//        // Gibt es in der Datenbank RT's, die aktuell zur Laufzeit gespielt werden und somit ein UPDATE für die Spielbeziehung bekommen müssen?
-//        try{
-////            UniversityExample.Person test = new UniversityExample.Person("hallo");
-//            Method method = ntObj.getClass().getMethod("roles");
-//            Object test = method.invoke(ntObj);
-//            System.out.println("aaaaaaaaaaaa = " + test);
-//        }catch(Exception e){
-//            throw e;
-//        }
 
         // Eigentlichen NT speichern
         session.saveOrUpdate(nt);
@@ -143,9 +128,6 @@ public class _NT {
         // Transaktion und Session schließen bzw. committen
         SessionFactory.closeTransaction();
 //        session.close();
-
-        // Positive Rückgabe
-        return true;
     }
 
 //    private List<?> getAllNtByNtEntity(String variableName, Object value){
@@ -165,17 +147,87 @@ public class _NT {
 //        return list;
 //    }
 
+//    /**
+//     * Selektiert einen NT.
+//     *
+//     * @param ntObj Die Instanz eines Natürlichen Typen, auf den die Ergebnisse geschrieben werden sollen
+//     * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
+//     * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
+//     * @throws Exception
+//     */
+//    public void select(Object ntObj, String variableName, Object value) throws Exception {
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+//
+//        // Session und Transaktion ermitteln bzw. initialisieren
+//        Session session = SessionFactory.getNewOrOpenSession();
+//        SessionFactory.openTransaction();
+//
+//        // Entität aus der Datenbank ermitteln
+////        List<NT> allNt = this.ntRepository.findAllByHash(hash);
+//        Query query = session.createQuery("select nt from NT as nt inner join nt.variables as variables " +
+//                "where variables.name = :name and variables.value = :value ");
+//        query.setParameter("name", variableName);
+//        query.setParameter("value", value);
+//        List<?> allNTs = query.list();
+//        if(allNTs.size() == 0)
+//            throw new Exception("Keinen Eintrag gefunden");
+//        if(allNTs.size() > 1)
+//            throw new Exception("Zu viele Einträge gefunden, nicht eindeutig genug");
+//
+//        // Es kann nur noch ein Ergebnis geben
+//        scroll.persistence.Model.NT selectedNt = (scroll.persistence.Model.NT) allNTs.get(0);
+////        selectedNt = (NT) session.merge(selectedNt); // re-attach
+//
+//        // Nur eine Klassenvariable neu setzen
+////        Field field = ntObj.getClass().getDeclaredField(variableName);
+////        field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+////        field.set(ntObj, value);
+//
+//        // Die Variablen der ermittelten Entität aufbereiten
+//        HashMap<String, Object> variablesSelected = new HashMap<String, Object>();
+//        for(Variable var : selectedNt.variables){
+//            variablesSelected.put(var.name, var.value);
+//        }
+//
+//        // Alle Klassenvariablen durchgehen und setzen
+//        Collection<Field> fields = Serializer.getAllFields(ntObj.getClass());
+//        for(Field fieldOriginalNt : fields){
+////            Field fieldOriginalNt2 = ntObj.getClass().getDeclaredField(fieldOriginalNt.getName());
+////            fieldOriginalNt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+////            fieldOriginalNt2.set(ntObj, fieldOriginalNt.get(fieldOriginalNt));
+//
+//            // auch `privat` Variablen müssen veränderbar sein
+//            fieldOriginalNt.setAccessible(true);
+//
+//            // Das Feld `uuid_` speziell behandeln, da es als Variablen-Entity nicht existiert, sondern im NT-Entity gespeichert wurde
+//            if(fieldOriginalNt.getName() == "uuid_"){
+//                fieldOriginalNt.set(ntObj, selectedNt.uuid_);
+//                continue;
+//            }
+//
+//            // normales setzen eines Attributs
+//            fieldOriginalNt.set(ntObj, variablesSelected.get(fieldOriginalNt.getName()));
+//        }
+//
+//        // Transaktion und Session schließen bzw. committen
+//        SessionFactory.closeTransaction();
+////        session.close();
+//    }
+
     /**
-     * Selektiert einen NT.
+     * Selektiert NTs.
      *
-     * @param nt Die Instanz eines Natürlichen Typen, auf den die Ergebnisse geschrieben werden sollen
+     * @param ntObjClass Die Instanz eines Natürlichen Typen, auf den die Ergebnisse geschrieben werden sollen
      * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
      * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
+     * @return List<?> Eine Liste der NTs die auf die Bedingung zutreffen
      * @throws Exception
      */
-    public void select(Object nt, String variableName, Object value) throws Exception {
+    public List<?> select(Class ntObjClass, String variableName, Object value) throws Exception {
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(nt.getClass()))
+        if(!MetaPersistenceNt.class.isAssignableFrom(ntObjClass))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
@@ -185,56 +237,82 @@ public class _NT {
         // Entität aus der Datenbank ermitteln
 //        List<NT> allNt = this.ntRepository.findAllByHash(hash);
         Query query = session.createQuery("select nt from NT as nt inner join nt.variables as variables " +
-                "where variables.name = :name and variables.value = :value ");
+                "where nt.name = :className and variables.name = :name and variables.value = :value ");
+        query.setParameter("className", ntObjClass.getCanonicalName());
         query.setParameter("name", variableName);
         query.setParameter("value", value);
         List<?> allNTs = query.list();
-        if(allNTs.size() == 0)
-            throw new Exception("Keinen Eintrag gefunden");
-        if(allNTs.size() > 1)
-            throw new Exception("Zu viele Einträge gefunden, nicht eindeutig genug");
 
-        // Es kann nur noch ein Ergebnis geben
-        scroll.persistence.Model.NT selectedNt = (scroll.persistence.Model.NT) allNTs.get(0);
-//        selectedNt = (NT) session.merge(selectedNt); // re-attach
+        // Rückgabe Liste initialisieren
+//        List<?> results = new ArrayList<Object>();
+//        ArrayList<?> results = ListHelper.listOf((Class<?>) ntObjClass);
+        ArrayList<Object> results = ListHelper.listOf(ntObjClass);
 
-        // Nur eine Klassenvariable neu setzen
-//        Field field = nt.getClass().getDeclaredField(variableName);
-//        field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
-//        field.set(nt, value);
+        // Über alle gefundenen Entitäten iterieren
+        if(allNTs.size() > 0){
+            for(NT nt : (List<NT>) allNTs){
+//                nt = (NT) session.merge(nt); // re-attach
 
-        // Die Variablen der ermittelten Entität aufbereiten
-        HashMap<String, Object> variablesSelected = new HashMap<String, Object>();
-        for(Variable var : selectedNt.variables){
-            variablesSelected.put(var.name, var.value);
-        }
+//                // Eine Instanz der Zielklasse erzeugen
+                Objenesis o = new ObjenesisStd(false); // cache disabled
+                Object newObj = o.newInstance(ntObjClass);
 
-        // Alle Klassenvariablen durchgehen und setzen
-        Collection<Field> fields = Serializer.getAllFields(nt.getClass());
-        for(Field fieldOriginalNt : fields){
-//            Field fieldOriginalNt2 = nt.getClass().getDeclaredField(fieldOriginalNt.getName());
-//            fieldOriginalNt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
-//            fieldOriginalNt2.set(nt, fieldOriginalNt.get(fieldOriginalNt));
+                // Nur eine Klassenvariable neu setzen
+//                Field field = newObj.getClass().getDeclaredField(variableName);
+//                field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+//                field.set(newObj, value);
 
-            // auch `privat` Variablen müssen veränderbar sein
-            fieldOriginalNt.setAccessible(true);
+                // Die Variablen der ermittelten Entität aufbereiten
+                HashMap<String, Object> variablesSelected = new HashMap<String, Object>();
+                for(Variable var : nt.variables){
+                    variablesSelected.put(var.name, var.value);
+                }
 
-            // Das Feld `uuid_` speziell behandeln,
-            if(fieldOriginalNt.getName() == "uuid_"){
-                fieldOriginalNt.set(nt, selectedNt.uuid_);
-                continue;
+                // Alle Klassenvariablen durchgehen und setzen
+                Collection<Field> fields = Serializer.getAllFields(newObj.getClass());
+                for(Field fieldOriginalNt : fields){
+//                    Field fieldOriginalNt2 = newObj.getClass().getDeclaredField(fieldOriginalNt.getName());
+//                    fieldOriginalNt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+//                    fieldOriginalNt2.set(newObj, fieldOriginalNt.get(fieldOriginalNt));
+
+                    // auch `privat` Variablen müssen veränderbar sein
+                    fieldOriginalNt.setAccessible(true);
+
+                    // Das Feld `uuid_` speziell behandeln, da es als Variablen-Entity nicht existiert, sondern im NT-Entity gespeichert wurde
+                    if(fieldOriginalNt.getName() == "uuid_"){
+                        fieldOriginalNt.set(newObj, nt.uuid_);
+                        continue;
+                    }
+
+                    // normales setzen eines Attributs
+                    fieldOriginalNt.set(newObj, variablesSelected.get(fieldOriginalNt.getName()));
+                }
+
+                // Das fertige neue Objekt der Rückgabe Liste hinzufügen
+                results.add(newObj);
             }
-
-            // normales setzen eines Attributs
-            fieldOriginalNt.set(nt, variablesSelected.get(fieldOriginalNt.getName()));
         }
 
         // Transaktion und Session schließen bzw. committen
         SessionFactory.closeTransaction();
 //        session.close();
 
-//        // Rückgabe
-//        return nt;
+        // Rückgabe der Ergebnisse
+        return results;
+    }
+
+    /**
+     * Löscht einen NT.
+     *
+     * @param ntObj Der NT, der gelöscht werden soll.
+     * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
+     * @throws Exception
+     */
+    public boolean delete(Object ntObj) throws Exception {
+        //TODO
+
+        // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
+        return false;
     }
 
 }

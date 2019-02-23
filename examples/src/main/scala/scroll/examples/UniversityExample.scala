@@ -6,14 +6,15 @@ import org.hibernate._
 import javax.persistence._
 import scroll.persistence.Database
 import java.util
+import java.util.List
 
 import scroll.examples.UniversityExample.Person
 import scroll.persistence.Inheritance.{MetaPersistenceCt, MetaPersistenceNt, MetaPersistenceRt}
 
 object UniversityExample {
 
-//  class University extends MetaPersistenceCt {
-  class University extends Compartment {
+//  class University extends Compartment {
+  class University extends MetaPersistenceCt {
     var country = "Deutschland"
 
     class Student extends MetaPersistenceRt {
@@ -47,7 +48,7 @@ object UniversityExample {
   def main(args: Array[String]): Unit = {
     println("===== START =====");
 
-    val test = new University {
+    val uni = new University {
       val uwe = new Person("uwe")
 
 
@@ -58,34 +59,30 @@ object UniversityExample {
 
       // insert
       val hans = new Person("hans")
-      Database.nt().createOrUpdate(hans)
+      Database.nt.createOrUpdate(hans)
 
       // update
       hans.name = "hans2"
-      Database.nt().createOrUpdate(hans)
+      Database.nt.createOrUpdate(hans)
 
       // select
 //      val hansSelect = Database.select((new Person("a")).getClass, "name", "hans2").asInstanceOf[Person]
 //      val hansSelect = Database.select(new Person("a"), "name", "hans2").asInstanceOf[Person]
-      var hansSelect = new Person("a")
-      Database.nt().select(hansSelect, "name", "hans2")
+//      var hansSelect = new Person("a")
+//      Database.nt.select(hansSelect, "name", "hans2")
 //      Database.select("scroll.examples.UniversityExample.Person", "name", "hans2")
 //      val hansSelect2 = Database.select("name", "hans2").asInstanceOf[Person]
+      var hansSelectList: util.List[UniversityExample.Person] = Database.nt.select(
+        classOf[UniversityExample.Person], "name", "hans").asInstanceOf[util.List[UniversityExample.Person]]
+      System.out.println("Anzahl der gefundenen NTs: " + hansSelectList.size())
 
       // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
+      var hansSelect = hansSelectList.get(0)
       hansSelect.name = "hans3"
-      Database.nt().createOrUpdate(hansSelect)
-
-      // select 2: Wenn kein Eintrag gefunden wird
-      var hansSelect2 = new Person("a")
-      try{
-        Database.nt().select(hansSelect2, "name", "hans4")
-      }catch{
-        case _: Throwable  => println("Kein Eintrag gefunden")
-      }
+      Database.nt.createOrUpdate(hansSelect)
 
       // delete
-      //TODO
+      Database.nt.delete(hansSelect)
 
 
 
@@ -98,36 +95,36 @@ object UniversityExample {
 
       // === RT
 
-      // insert
-      val student2 = new Student
-      val student3 = new Student
-      hans play student2
-      hans play student3
-      uwe play student2
-      println("hans.roles() = " + hans.roles())
-      println("uwe.roles() = " + uwe.roles())
-      println("allPlayers = " + allPlayers)
-      +hans talk()
-//      Database.rt().createOrUpdate(hans)
-      Database.rt().createOrUpdate(student2)
-
-
-
-
-      hans.talk()
-
-      val student = new Student
-      println("Player equals core: " + ((hans play student) == hans))
-      +hans talk()
-
-      println((+student).name)
-      println("Role core equals core: " + (+student == hans))
-
-      uwe play new Professor
-      +uwe talk()
-      println("Core equals core playing a role: " + (+uwe == uwe))
-
-      +uwe teach hans
+//      // insert
+//      val student2 = new Student
+//      val student3 = new Student
+//      hans play student2
+//      hans play student3
+//      uwe play student2
+//      println("hans.roles() = " + hans.roles())
+//      println("uwe.roles() = " + uwe.roles())
+//      println("allPlayers = " + allPlayers)
+//      +hans talk()
+////      Database.rt.createOrUpdate(hans)
+//      Database.rt.createOrUpdate(student2)
+//
+//
+//
+//
+//      hans.talk()
+//
+//      val student = new Student
+//      println("Player equals core: " + ((hans play student) == hans))
+//      +hans talk()
+//
+//      println((+student).name)
+//      println("Role core equals core: " + (+student == hans))
+//
+//      uwe play new Professor
+//      +uwe talk()
+//      println("Core equals core playing a role: " + (+uwe == uwe))
+//
+//      +uwe teach hans
     }
 
     System.exit(0) // anderenfalls beendet die Anwendung nicht

@@ -12,6 +12,11 @@ Folgende Projekte müssen in ein und den selben Ordner kopiert werden:
 - zuerst: https://github.com/max-leuthaeuser/SCROLL
 - nachfolgend: https://github.com/christopher2007/SCROLL-persistence
 
+Die `build.sbt` müssen aus beiden Projekten vorsichtig kombiniert werden, da nicht sichergestellt
+sein kann, dass die Versionen kompatibel sind (SCROLL könnte Dependencies angepasst haben, die die
+Persistence noch nicht bedacht hat. Und die Persistence hat auf jeden Fall Dependencies hinzugefügt,
+die SCROLL noch nicht brauchte).  
+  
 Danach das so entstandene Projekt in einer IDE öffnen (empfohlen eclipse oder IntelliJ).  
 Nun das scala Projekt aufbauen lassen und die Dependencies laden.  
 Zu guter letzt eines der Beispielprojekte starten (empfohlen `UniversityExample`).  
@@ -36,6 +41,12 @@ def getRolesFromHash(hash: Int): Seq[AnyRef] = {
     }
     null
 }
+```
+
+Die Klasse `Compartment` mit folgender Variable erweitern:   
+
+```scala
+var uuid_ = java.util.UUID.randomUUID
 ```
 
 
