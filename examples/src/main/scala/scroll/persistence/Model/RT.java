@@ -13,10 +13,7 @@ public class RT extends scroll.persistence.Model.Entity {
     @JoinColumn(name="ct_id", nullable=true)
     public CT containedIn;
 
-    @ManyToMany(mappedBy = "playingNt")
-    public Set<NT> PlayedByNt = new HashSet<>();
-
-    @ManyToMany(mappedBy = "playingCt")
-    public Set<CT> PlayedByCt = new HashSet<>();
+    @ManyToMany(mappedBy = "playing")
+    public Set<scroll.persistence.Model.Entity> playedBy = new HashSet<>();
 
 }

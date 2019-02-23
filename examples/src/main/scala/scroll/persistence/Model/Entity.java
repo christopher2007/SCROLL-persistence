@@ -5,6 +5,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,5 +28,11 @@ abstract public class Entity {
 
     @Column(columnDefinition = "BINARY(16)", nullable=false, unique = true)
     public UUID uuid_;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(name = "entity_rt",
+            joinColumns = { @JoinColumn(name = "entity_id") },
+            inverseJoinColumns = { @JoinColumn(name = "rt_id") })
+    public Set<RT> playing = new HashSet<>();
 
 }

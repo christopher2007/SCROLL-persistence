@@ -12,10 +12,4 @@ public class CT extends scroll.persistence.Model.Entity {
     @OneToMany(mappedBy="containedIn")
     public Set<RT> containing;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(name = "ct_rt",
-            joinColumns = { @JoinColumn(name = "ct_id") },
-            inverseJoinColumns = { @JoinColumn(name = "rt_id") })
-    public Set<RT> playingCt = new HashSet<>();
-
 }
