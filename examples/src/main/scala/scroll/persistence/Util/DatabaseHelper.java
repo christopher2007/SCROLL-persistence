@@ -35,4 +35,17 @@ public class DatabaseHelper {
             session.saveOrUpdate(var);
         }
     }
+
+//    public static boolean checkMetaTypeString(Object o, String metaTypeToTest){
+//        try {
+////            Field f = o.getClass().getField("metaType_"); // Nur public und nur direkte Variablen
+//            Field f = o.getClass().getDeclaredField("metaType_"); // auch private und protected und auch nach Vererbungen
+//            f.setAccessible(true);
+//            String metaType_ = (String) f.get(o);
+//            if(metaType_ == metaTypeToTest)
+//                return true;
+//        }catch(Exception e){ }
+//        return false;
+//    }
+
 }

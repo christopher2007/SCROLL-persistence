@@ -185,25 +185,15 @@ neuste und umgesetzte Ansatz.
   `played by` mit gespeichert.  
   Ebenso muss bei dem Speichern eines RT auch der CT mit persistiert oder bereits persistiert worden sein,
   in dem sich der zu speichernde RT befindet. Auch hier geht es nicht ohne.
-- Um einen NT, RT und CT auseinander halten zu können, wurde eigentlich auf die Vererbte Klasse geprüft.
-  Denn da alle drei von unterschiedlichen Metaklassen erben müssen, hätte man sehr schön mittels
+- Um einen NT, RT und CT auseinander halten zu können, kann auf die Vererbte Klasse geprüft werden.
+  Denn da alle drei von unterschiedlichen Metaklassen erben müssen, kann man sehr schön mittels
   ```java
   MetaPersistenceNt.class.isAssignableFrom(someObject.getClass()) // NT
   MetaPersistenceRt.class.isAssignableFrom(someObject.getClass()) // RT
   MetaPersistenceCt.class.isAssignableFrom(someObject.getClass()) // CT
   ```
-  prüfen können, von welcher Metaklasse das übergebene Objekt erbt.  
-  Leider geht diese Information jedoch verloren, sobald die Entitäten als Spieler im Compartment
-  hinterlegt werden. Erfragt man nämlich von einem Compartment alle Spieler eines RT, so kann man die
-  Spieler danach nicht mehr auseinander halten.  
-  Damit dies dennoch auch weiterhin möglich ist, wurde eine weitere Metavariable neben der `uuid_`
-  eingeführt, die jede Entität inne haben muss: `metaType_`  
-  Es ist ganz simpel nur ein String, der bei einem NT `nt`, bei einem CT `ct` und bei einem RT `rt`
-  beinhaltet.  
-  Eine einfache prüfung auf Gleichheit von Strings reicht dann aus, um eine Entität
-  zuordnen zu können.  
-  Und eine Prüfung, ob die Variable überhaupt vorhanden ist, sichert dann die Vererbung selbst ab und
-  stellt sie sicher.
+  prüfen, von welcher Metaklasse das übergebene Objekt erbt und um was für eine Entity es sich
+  dadurch handelt.
 
 
 

@@ -99,20 +99,13 @@ public class _RT {
         // Eventuell sollen die Spieler, die diesen RT spielen, mit persistiert werden
         // (andernfalls wird einfach angenommen, dass sie schon in der Datenbank existieren)
         if(createOrUpdatePlayers){
-            System.out.println("xxxxxxxxxxxxxxxxxxxxxx");
-            int round = 0;
             for(Object player : allPlayers){
-                System.out.println(round);
-                System.out.println(player.getClass());
-                Serializer.printAllFields(player);
-                System.out.println(player.getClass().getSuperclass());
-
                 // Der Spieler kann ein NT, CT oder RT sein, daher muss unterschieden werden
                 if(MetaPersistenceNt.class.isAssignableFrom(player.getClass())) // NT
                     Database.nt().createOrUpdate(player);
-                if(MetaPersistenceCt.class.isAssignableFrom(player.getClass())) // CT
+                else if(MetaPersistenceCt.class.isAssignableFrom(player.getClass())) // CT
                     Database.ct().createOrUpdate(player);
-                if(MetaPersistenceRt.class.isAssignableFrom(player.getClass())) // RT
+                else if(MetaPersistenceRt.class.isAssignableFrom(player.getClass())) // RT
                     Database.rt().createOrUpdate(player);
                 else // nichts
                     throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
