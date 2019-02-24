@@ -74,18 +74,32 @@ public class _CT {
 //        UUID uuid_ = HelperGetUUID.getUUID(ctObj);
         UUID uuid_ = ((MetaPersistenceCt) ctObj).uuid_();
 
-        // Ist der aktuelle Aufruf ein erstmaliger INSERT oder ein UPDATE?
-        //TODO das werde ich vorerst nicht unterscheiden, da der Umfang der gesamten Aufgabe auch ohne schon gigangisch ist, daher einfach ein DELETE vorab, dann ist es auch jeden fall ein neuer INSERT
-        this.delete(ctObj);
+        // Eventuell gibt es das Objekt schon in der Datenbank, daher Abfrage starten
+        Query query = session.createQuery("select ct from CT as ct where ct.uuid_ = :uuid ");
+        query.setParameter("uuid", uuid_);
+        List<?> allCTs = query.list();
 
-        // Den neuen CT erstellen und speichern
-        CT ct = new CT();
-        ct.classPackage = classInfos.classPackage;
-        ct.uuid_ = uuid_;
-        ct.variables = new HashSet<Variable>();
+        // Gibt es dieses Objekt in der Datenbank schon?
+        CT ct;
+        if(allCTs.size() == 0){
+            // als neue Entität anlegen
+            ct = new CT();
+            ct.classPackage = classInfos.classPackage;
+            ct.uuid_ = uuid_;
+        }else{
+            // die bereits bestehende Entität nutzen
+            ct = (CT) allCTs.get(0); // einfach das erste nehmen, UUIDs sind UNIQUE
+
+            // Alle Variablen löschen, da diese gleich neu gesetzt werden
+            //TODO hohe Laufzeit, sollte man später ändern
+            for(Variable var : ct.variables){
+                session.delete(var);
+            }
+        }
+        ct.variables = new HashSet<Variable>(); // auch bei bereits bestehenden Entitäten leeren = alles löschen
         session.saveOrUpdate(ct);
 
-        //TODO
+//        //TODO, führt aktuell noch zu großen Problemen
 //        // Alle Variablen hinzufügen
 //        DatabaseHelper.addAllVariablesToEntity(ctObj, ct, session);
 //

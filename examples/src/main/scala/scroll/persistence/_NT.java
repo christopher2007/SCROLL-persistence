@@ -57,15 +57,15 @@ public class _NT {
         List<?> allNTs = query.list();
 
         // Gibt es dieses Objekt in der Datenbank schon?
-        scroll.persistence.Model.NT nt;
+        NT nt;
         if(allNTs.size() == 0){
             // als neue Entität anlegen
-            nt = new scroll.persistence.Model.NT();
+            nt = new NT();
             nt.classPackage = classInfos.classPackage;
             nt.uuid_ = uuid_;
         }else{
             // die bereits bestehende Entität nutzen
-            nt = (scroll.persistence.Model.NT) allNTs.get(0); // einfach das erste nehmen, UUIDs sind UNIQUE
+            nt = (NT) allNTs.get(0); // einfach das erste nehmen, UUIDs sind UNIQUE
 
             // Alle Variablen löschen, da diese gleich neu gesetzt werden
             //TODO hohe Laufzeit, sollte man später ändern
@@ -75,35 +75,6 @@ public class _NT {
         }
         nt.variables = new HashSet<Variable>(); // auch bei bereits bestehenden Entitäten leeren = alles löschen
         session.saveOrUpdate(nt);
-
-//        // Über alle Variablen des übergebenen NT iterieren und diese in der Datenbank speichern
-//        Collection<Field> fields = Serializer.getAllFields(ntObj.getClass());
-//        for(Field field : fields){
-//            field.setAccessible(true); // auch `privat` Variablen müssen lesbar und schreibbar sein
-//            String variableName = field.getName();
-//            Object variableValue = null;
-//            try {
-//                variableValue = field.get(ntObj);
-//            } catch (IllegalArgumentException | IllegalAccessException e) {
-//                e.printStackTrace();
-//            }
-//
-//            // Die Variable `uuid_` ignorieren wir, da sie auf Ebene der NT-Entity selbst gespeichert werden soll
-//            if(variableName == "uuid_")
-//                continue;
-//
-//            // Eine Variablen Entity erstellen
-//            Variable var = new Variable();
-//            var.entity = nt;
-//            var.name = variableName;
-//            var.value = variableValue;
-//            nt.variables.add(var);
-//
-////            System.out.println("Variablen Name: " + variableName);
-//
-//            // Variablen Entity speichern
-//            session.saveOrUpdate(var);
-//        }
 
         // Alle Variablen hinzufügen
         DatabaseHelper.addAllVariablesToEntity(ntObj, nt, session);

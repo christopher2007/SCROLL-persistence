@@ -74,8 +74,10 @@ public class SessionFactory {
         Session session = getNewOrOpenSession();
         transactionCount = transactionCount - 1;
 //        if(!session.getTransaction().isActive())
-        if(transactionCount == 0)
+        if(transactionCount == 0) {
             session.getTransaction().commit();
+            session.close(); //TODO oder den close ganz weg? oder wo anders hin?
+        }
     }
 
 }

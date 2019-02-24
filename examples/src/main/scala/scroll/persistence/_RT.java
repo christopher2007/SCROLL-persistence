@@ -135,15 +135,29 @@ public class _RT {
         query2.setParameter("uuids", allPlayersUUIDs);
         List<?> allPlayersEntities = query2.list();
 
-        // Ist der aktuelle Aufruf ein erstmaliger INSERT oder ein UPDATE?
-        //TODO das werde ich vorerst nicht unterscheiden, da der Umfang der gesamten Aufgabe auch ohne schon gigangisch ist, daher einfach ein DELETE vorab, dann ist es auch jeden fall ein neuer INSERT
-        this.delete(rtObj);
+        // Eventuell gibt es das Objekt schon in der Datenbank, daher Abfrage starten
+        Query query4 = session.createQuery("select rt from RT as rt where rt.uuid_ = :uuid ");
+        query4.setParameter("uuid", uuid_);
+        List<?> allRTs = query4.list();
 
-        // Den neuen RT erstellen und speichern
-        RT rt = new RT();
-        rt.classPackage = classInfos.classPackage;
-        rt.uuid_ = uuid_;
-        rt.variables = new HashSet<Variable>();
+        // Gibt es dieses Objekt in der Datenbank schon?
+        RT rt;
+        if(allRTs.size() == 0){
+            // als neue Entität anlegen
+            rt = new RT();
+            rt.classPackage = classInfos.classPackage;
+            rt.uuid_ = uuid_;
+        }else{
+            // die bereits bestehende Entität nutzen
+            rt = (RT) allRTs.get(0); // einfach das erste nehmen, UUIDs sind UNIQUE
+
+            // Alle Variablen löschen, da diese gleich neu gesetzt werden
+            //TODO hohe Laufzeit, sollte man später ändern
+            for(Variable var : rt.variables){
+                session.delete(var);
+            }
+        }
+        rt.variables = new HashSet<Variable>(); // auch bei bereits bestehenden Entitäten leeren = alles löschen
         session.saveOrUpdate(rt);
 
         // Alle Variablen hinzufügen
