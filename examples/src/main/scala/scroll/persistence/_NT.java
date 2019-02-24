@@ -1,6 +1,8 @@
 package scroll.persistence;
 
+import org.hibernate.Criteria;
 import org.hibernate.Session;
+import org.hibernate.jpa.QueryHints;
 import org.hibernate.query.Query;
 import org.springframework.objenesis.Objenesis;
 import org.springframework.objenesis.ObjenesisStd;
@@ -54,6 +56,8 @@ public class _NT {
 //        List<NT> allNt = this.ntRepository.findAllByHash(hash);
         Query query = session.createQuery("select nt from NT as nt where nt.uuid_ = :uuid ");
         query.setParameter("uuid", uuid_);
+//        query.setHint( QueryHints.HINT_PASS_DISTINCT_THROUGH, false );
+//        query.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
         List<?> allNTs = query.list();
 
         // Gibt es dieses Objekt in der Datenbank schon?
@@ -86,6 +90,46 @@ public class _NT {
         // Transaktion und Session schließen bzw. committen
         SessionFactory.closeTransaction();
 //        session.close();
+    }
+
+    /**
+     * Löscht einen NT. Dabei werden auch alle Spielrelationen dieses NT zu RTs gelöscht.
+     * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
+     * TODO Sollte man mit einem Garbage Collector diese RT in der Zukunft löschtn?
+     *
+     * @param ntObj Der NT, der gelöscht werden soll.
+     * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
+     * @throws Exception
+     */
+    public boolean delete(Object ntObj) throws Exception {
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
+        // Session und Transaktion ermitteln bzw. initialisieren
+        Session session = SessionFactory.getNewOrOpenSession();
+        SessionFactory.openTransaction();
+
+        // UUID ermitteln
+//        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
+        UUID uuid_ = ((MetaPersistenceNt) ntObj).uuid_();
+
+        // DELETE auf der Datenbank ausführen
+        Query query = session.createQuery("delete from NT as nt where nt.uuid_ = :uuid ");
+        query.setParameter("uuid", uuid_);
+        int numberRowsChanged = query.executeUpdate();
+
+        // Transaktion und Session schließen bzw. committen
+        SessionFactory.closeTransaction();
+//        session.close();
+
+        // Wurde etwas gelöscht?
+        if(numberRowsChanged > 0)
+            // Mindestens einen Fund, und da UUID UNIQUE ist, wohl genau einen
+            return true;
+
+        // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
+        return false;
     }
 
 //    private List<?> getAllNtByNtEntity(String variableName, Object value){
@@ -177,7 +221,7 @@ public class _NT {
     /**
      * Selektiert NTs.
      *
-     * @param ntObjClass Die Instanz eines Natürlichen Typen, auf den die Ergebnisse geschrieben werden sollen
+     * @param ntObjClass Die Klasse des NT, in welchem die Instanz gesucht werden soll
      * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
      * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
      * @return List<?> Eine Liste der NTs die auf die Bedingung zutreffen
@@ -214,7 +258,7 @@ public class _NT {
             for(NT nt : (List<NT>) allNTs){
 //                nt = (NT) session.merge(nt); // re-attach
 
-//                // Eine Instanz der Zielklasse erzeugen
+                // Eine Instanz der Zielklasse erzeugen
                 Objenesis o = new ObjenesisStd(false); // cache disabled
                 Object newObj = o.newInstance(ntObjClass);
 
@@ -260,46 +304,6 @@ public class _NT {
 
         // Rückgabe der Ergebnisse
         return results;
-    }
-
-    /**
-     * Löscht einen NT. Dabei werden auch alle Spielrelationen dieses NT zu RTs gelöscht.
-     * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
-     * TODO Sollte man mit einem Garbage Collector diese RT in der Zukunft löschtn?
-     *
-     * @param ntObj Der NT, der gelöscht werden soll.
-     * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
-     * @throws Exception
-     */
-    public boolean delete(Object ntObj) throws Exception {
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
-
-        // Session und Transaktion ermitteln bzw. initialisieren
-        Session session = SessionFactory.getNewOrOpenSession();
-        SessionFactory.openTransaction();
-
-        // UUID ermitteln
-//        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
-        UUID uuid_ = ((MetaPersistenceNt) ntObj).uuid_();
-
-        // DELETE auf der Datenbank ausführen
-        Query query = session.createQuery("delete from NT as nt where nt.uuid_ = :uuid ");
-        query.setParameter("uuid", uuid_);
-        int numberRowsChanged = query.executeUpdate();
-
-        // Transaktion und Session schließen bzw. committen
-        SessionFactory.closeTransaction();
-//        session.close();
-
-        // Wurde etwas gelöscht?
-        if(numberRowsChanged > 0)
-            // Mindestens einen Fund, und da UUID UNIQUE ist, wohl genau einen
-            return true;
-
-        // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
-        return false;
     }
 
 }

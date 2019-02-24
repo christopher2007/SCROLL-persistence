@@ -2,16 +2,15 @@ package scroll.persistence;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import org.springframework.objenesis.Objenesis;
+import org.springframework.objenesis.ObjenesisStd;
 import scala.collection.Seq;
 import scroll.internal.Compartment;
 import scroll.internal.IPlayer;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
-import scroll.persistence.Model.CT;
-import scroll.persistence.Model.Entity;
-import scroll.persistence.Model.RT;
-import scroll.persistence.Model.Variable;
+import scroll.persistence.Model.*;
 import scroll.persistence.Util.*;
 
 import java.lang.reflect.Field;
@@ -216,6 +215,115 @@ public class _RT {
 
         // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
         return false;
+    }
+
+    /**
+     * Selektiert RTs.
+     * Optional auf Anfrage werden auch die Spieler mit zurück gegeben.
+     *
+     * @param rtObjClass Die Klasse des RT, in welchem die Instanz gesucht werden soll
+     * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
+     * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
+     * @param alsoSelectPlayers `true`=Selektiert auch die Spieler welche mittels Played-By mit dem selektierten RT spielen; `false`=nicht
+     * @return List<ReturnRT> Eine Liste der RTs die auf die Bedingung zutreffen
+     * @throws Exception
+     */
+    public List<ReturnRT> select(Class rtObjClass, String variableName, Object value, boolean alsoSelectPlayers) throws Exception {
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceRt.class.isAssignableFrom(rtObjClass))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
+        // Session und Transaktion ermitteln bzw. initialisieren
+        Session session = SessionFactory.getNewOrOpenSession();
+        SessionFactory.openTransaction();
+
+        // Klassen-Spezifische Informationen ermitteln
+        BasicClassInformation classInfos = new BasicClassInformation(rtObjClass);
+
+        // Entität aus der Datenbank ermitteln
+        Query query = session.createQuery("select rt from RT as rt inner join rt.variables as variables " +
+                "where rt.classPackage = :classPackage and variables.name = :name and variables.value = :value ");
+        query.setParameter("classPackage", classInfos.classPackage);
+        query.setParameter("name", variableName);
+        query.setParameter("value", value);
+        List<?> allRTs = query.list();
+
+        // Rückgabe Liste initialisieren
+//        List<?> results = new ArrayList<Object>();
+//        ArrayList<?> results = ListHelper.listOf((Class<?>) rtObjClass);
+//        ArrayList<Object> results = ListHelper.listOf(rtObjClass);
+        ArrayList<ReturnRT> results = new ArrayList<>();
+
+        // Über alle gefundenen Entitäten iterieren
+        if(allRTs.size() > 0){
+            for(RT rt : (List<RT>) allRTs){
+//                rt = (RT) session.merge(rt); // re-attach
+
+                // Eine Instanz der Zielklasse erzeugen
+                Objenesis o = new ObjenesisStd(false); // cache disabled
+                Object newObj = o.newInstance(rtObjClass);
+
+                // Nur eine Klassenvariable neu setzen
+//                Field field = newObj.getClass().getDeclaredField(variableName);
+//                field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+//                field.set(newObj, value);
+
+                // Die Variablen der ermittelten Entität aufbereiten
+                HashMap<String, Object> variablesSelected = new HashMap<String, Object>();
+                for(Variable var : rt.variables){
+                    variablesSelected.put(var.name, var.value);
+                }
+
+                // Alle Klassenvariablen durchgehen und setzen
+                Collection<Field> fields = Serializer.getAllFields(newObj.getClass());
+                for(Field fieldOriginalRt : fields){
+//                    Field fieldOriginalRt2 = newObj.getClass().getDeclaredField(fieldOriginalRt.getName());
+//                    fieldOriginalRt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
+//                    fieldOriginalRt2.set(newObj, fieldOriginalRt.get(fieldOriginalRt));
+
+                    // auch `privat` Variablen müssen veränderbar sein
+                    fieldOriginalRt.setAccessible(true);
+
+                    // Das Feld `uuid_` speziell behandeln, da es als Variablen-Entity nicht existiert, sondern im RT-Entity gespeichert wurde
+                    if(fieldOriginalRt.getName() == "uuid_"){
+                        fieldOriginalRt.set(newObj, rt.uuid_);
+                        continue;
+                    }
+
+                    // normales setzen eines Attributs
+                    fieldOriginalRt.set(newObj, variablesSelected.get(fieldOriginalRt.getName()));
+                }
+
+                // Ein Element der Rückgabeliste erzeugen
+                ReturnRT tmp = new ReturnRT();
+                tmp.rt = newObj;
+
+                // Sollen auch die Spieler mit zurück gegeben werden?
+                if(alsoSelectPlayers){
+                    for(Entity e : rt.playedBy){
+                        // Der Spieler kann ein NT, CT oder RT sein, daher muss unterschieden werden
+                        if(e instanceof NT) // NT
+                            tmp.players.add(null); //TODO
+                        else if(e instanceof CT) // CT
+                            tmp.players.add(null); //TODO
+                        else if(e instanceof RT) // RT
+                            tmp.players.add(null); //TODO
+                        else // nichts
+                            throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
+                    }
+                }
+
+                // Das fertige neue Objekt der Rückgabe Liste hinzufügen
+                results.add(tmp);
+            }
+        }
+
+        // Transaktion und Session schließen bzw. committen
+        SessionFactory.closeTransaction();
+//        session.close();
+
+        // Rückgabe der Ergebnisse
+        return results;
     }
 
 }
