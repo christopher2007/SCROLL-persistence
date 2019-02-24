@@ -53,8 +53,6 @@ object UniversityExample {
 
 
 
-
-
       // === NT
 
       // insert
@@ -89,8 +87,6 @@ object UniversityExample {
 
 
 
-
-
       // === Rollen ermitteln
 //      hansSelect.roles()
 //      allPlayers()
@@ -99,22 +95,22 @@ object UniversityExample {
 
       // === RT
 
-//      // insert
-//      val student2 = new Student
-//      val student3 = new Student
-//      hans play student2
-//      hans play student3
-//      uwe play student2
-//      println("hans.roles() = " + hans.roles())
-//      println("uwe.roles() = " + uwe.roles())
-//      println("allPlayers = " + allPlayers)
-//      +hans talk()
-////      Database.rt.createOrUpdate(hans)
-//      Database.rt.createOrUpdate(student2)
-//
-//
-//
-//
+      // insert
+      val student2 = new Student
+      val student3 = new Student
+      hans play student2
+      hans play student3
+      uwe play student2
+      println("hans.roles() = " + hans.roles())
+      println("uwe.roles() = " + uwe.roles())
+      println("allPlayers = " + allPlayers)
+      Database.rt.createOrUpdate(student2, true, true)
+
+
+
+
+
+
 //      hans.talk()
 //
 //      val student = new Student

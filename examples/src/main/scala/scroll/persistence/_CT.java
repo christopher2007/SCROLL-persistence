@@ -12,4 +12,7 @@ public class _CT {
         return _CT.instance;
     }
 
+    public void createOrUpdate(Object ctObj) throws Exception {
+    }
+
 }

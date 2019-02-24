@@ -140,7 +140,20 @@ neuste und umgesetzte Ansatz.
   Hier wird nun eine Instanz der Klasse erzeugt, welche dann aber mit den abzufragenden
   Werten aus der Datenbank komplett überschrieben wird. Die Person heißt hier zwar kurz `Max`,
   aber da alle Klassenvariablen in der nächsten Zeile überschrieben werden, heißt er danach
-  dann wieder richtig und hat auch seine alten bekannten Werte.
+  dann wieder richtig und hat auch seine alten bekannten Werte.  
+  Der Finale Ansatz sieht wie folgt aus:
+  ```scala
+  var hansSelectList: util.List[UniversityExample.Person] = Database.nt.select(
+          classOf[UniversityExample.Person], "name", "Hans Jürgen").asInstanceOf[util.List[UniversityExample.Person]]
+  ```
+  Er ist zwar sehr lang, aber dafür clean, nachvollziehbar und hält sich an die Grundlagen, die
+  man aus anderen Persistierungsframeworks gewohnt ist. Vor allem muss man kein Pseusoobjekt
+  erstellen, ehe man eine Abfrage starten kann. Man muss jedoch die Klasse mit übergeben, die man
+  durchsuchen möchte.  
+  Ebenso ist dieser Ansatz in der Lage, mehr als ein Objekt zurück zu geben, denn es ist nirgends
+  gesagt, dass es nur eine Person mit dem Suchkriterium geben wird.  
+  Ob dann etwas gefunden wurde und wenn ja wie viel kann der Entwickler prüfen, in dem er die Länge
+  der zurückgegebenen Liste überprüft.
 - Damit ein Objekt eindeutig in der Datenbank zugeordnet werden kann, muss jedes Objekt in dem
   Projekt der rollenbasierten Welt einen unique identifier besitzen, wie es in relationalen Ansätzen
   der Fall ist. Solch eine eindeutige Zuordnung von (UU)ID kann in Java leider nicht realisiert
@@ -162,9 +175,35 @@ neuste und umgesetzte Ansatz.
      Nachteil: Der spätere Entwickler muss stets an die Annotation für alle Klassen denken, die
      er persistieren möchte. Zudem sehr komplex in der Entwicklung, siehe Projekt `Lombok`, den `AST`
      zu manipulieren ist nicht ohne.
+- Die UUID wird durch vererbung vergeben. Daher müssen NT, RT und CT im SCROLL ab jetzt von der
+  entsprechenden Metaklasse erben. (Siehe Codebeispiel)
 - Wird bei einer Abfrage (=`select`) kein Eintrag gefunden, so wird kein Fehler geworfen, sondern
   das zugrundeliegende Objekt hat `null` in der `uuid_`. So kann man darauf abfragen und auf diesem
   Weg prüfen, ob ein Ergebnis gefunden wurde.
+- Spielrelationen werden immer mit dem persistieren der RT mit gespeichert. NT & CT können einfach so
+  gespeichert werden, aber bei dem speichern eines RT werden gezwungenermaßen auch die aktuell existierenden
+  `played by` mit gespeichert.  
+  Ebenso muss bei dem Speichern eines RT auch der CT mit persistiert oder bereits persistiert worden sein,
+  in dem sich der zu speichernde RT befindet. Auch hier geht es nicht ohne.
+- Um einen NT, RT und CT auseinander halten zu können, wurde eigentlich auf die Vererbte Klasse geprüft.
+  Denn da alle drei von unterschiedlichen Metaklassen erben müssen, hätte man sehr schön mittels
+  ```java
+  MetaPersistenceNt.class.isAssignableFrom(someObject.getClass()) // NT
+  MetaPersistenceRt.class.isAssignableFrom(someObject.getClass()) // RT
+  MetaPersistenceCt.class.isAssignableFrom(someObject.getClass()) // CT
+  ```
+  prüfen können, von welcher Metaklasse das übergebene Objekt erbt.  
+  Leider geht diese Information jedoch verloren, sobald die Entitäten als Spieler im Compartment
+  hinterlegt werden. Erfragt man nämlich von einem Compartment alle Spieler eines RT, so kann man die
+  Spieler danach nicht mehr auseinander halten.  
+  Damit dies dennoch auch weiterhin möglich ist, wurde eine weitere Metavariable neben der `uuid_`
+  eingeführt, die jede Entität inne haben muss: `metaType_`  
+  Es ist ganz simpel nur ein String, der bei einem NT `nt`, bei einem CT `ct` und bei einem RT `rt`
+  beinhaltet.  
+  Eine einfache prüfung auf Gleichheit von Strings reicht dann aus, um eine Entität
+  zuordnen zu können.  
+  Und eine Prüfung, ob die Variable überhaupt vorhanden ist, sichert dann die Vererbung selbst ab und
+  stellt sie sicher.
 
 
 
@@ -185,6 +224,8 @@ neuste und umgesetzte Ansatz.
   Also leider alles sehr stark limitiert in den Möglichkeiten. So sind manche Lösungen sehr
   schwerfällig und oft nicht unbedingt schön in der Programmierung.  
   Das nervigste: Es geht nur HQL als Abfragesprache, keine Spring oder JPA Repositories
+- Wie persistiert man einen RT, der einen anderen RT spielt, der wiederum den ersten RT spielt?  
+  Sehr nerviges gefriemel mit vielen Fallunterscheidungen, aber natürlich möglich.
 
 
 
