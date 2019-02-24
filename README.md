@@ -61,16 +61,16 @@ var uuid_ = java.util.UUID.randomUUID
 1. [x] Komplexeres Speichern von NTs, Duplikatserkennung
 1. [x] Komplexes Laden von NTs, konkrete Ergebnisse zurück geben, Variablen Mapping automatisiert
 1. [x] Löschen von NTs
-1. [ ] Primitives Speichern von CTs, ohne Zusammenhang mit RTs
+1. [x] Primitives Speichern von CTs, ohne Zusammenhang mit RTs
 1. [ ] Primitives Laden von CTs, ohne Zusammenhang mit RTs
 1. [ ] Komplexes Speichern von CTs, mit Zusammenhang mit RTs
 1. [ ] Komplexes Laden von CTs, mit Zusammenhang mit RTs
-1. [ ] Löschen von CTs
-1. [ ] Primitives Speichern von RTs, ohne Zusammenhang mit NTs
+1. [x] Löschen von CTs
+1. [x] Primitives Speichern von RTs, ohne Zusammenhang mit NTs
 1. [ ] Primitives Laden von RTs, ohne Zusammenhang mit NTs
 1. [ ] Komplexes Speichern von RTs, mit Zusammenhang mit NTs
 1. [ ] Komplexes Laden von RTs, mit Zusammenhang mit NTs
-1. [ ] Löschen von RTs
+1. [x] Löschen von RTs
 
 
 
@@ -81,6 +81,9 @@ var uuid_ = java.util.UUID.randomUUID
   zwei NT zurück, von denen jeder einen eigenen RT besitzt. Diese beiden RT haben zwar die gleiche
   UUID und werden von der `Database` Klasse auch als gleich angesehen, sind in Scala bzw. Java
   jedoch streng genommen zwei unterschiedliche Objekte.
+- Die Variablen von NT/RT/CT werden nur persistiert, wenn die Datenstrukturen vom Java
+  Serializer als Blob serialisiert werden können. Zu komplexe Kindklassen oder ähnliches können
+  aktuell leider nicht gespeichert werden.
 
 
 

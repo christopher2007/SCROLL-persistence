@@ -46,7 +46,8 @@ public class _NT {
         BasicClassInformation classInfos = new BasicClassInformation(ntObj);
 
         // UUID ermitteln
-        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
+//        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
+        UUID uuid_ = ((MetaPersistenceNt) ntObj).uuid_();
 
         // Eventuell gibt es das Objekt schon in der Datenbank, daher Abfrage starten
 //        List<?> allNTs = this.getAllNtByNtEntity("uuid_", uuid_);
@@ -291,7 +292,9 @@ public class _NT {
     }
 
     /**
-     * Löscht einen NT.
+     * Löscht einen NT. Dabei werden auch alle Spielrelationen dieses NT zu RTs gelöscht.
+     * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
+     * TODO Sollte man mit einem Garbage Collector diese RT in der Zukunft löschtn?
      *
      * @param ntObj Der NT, der gelöscht werden soll.
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
@@ -307,7 +310,8 @@ public class _NT {
         SessionFactory.openTransaction();
 
         // UUID ermitteln
-        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
+//        UUID uuid_ = HelperGetUUID.getUUID(ntObj);
+        UUID uuid_ = ((MetaPersistenceNt) ntObj).uuid_();
 
         // DELETE auf der Datenbank ausführen
         Query query = session.createQuery("delete from NT as nt where nt.uuid_ = :uuid ");

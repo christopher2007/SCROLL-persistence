@@ -31,7 +31,7 @@ public class _RT {
     }
 
     /**
-     * Ruft die gleichnamige Methode der klasse auf und setzt den Übergabeparameter `createOrupdatePlayers` und auch `createOrUpdateContainingCT`
+     * Ruft die gleichnamige Methode der Klasse auf und setzt den Übergabeparameter `createOrupdatePlayers` und auch `createOrUpdateContainingCT`
      * auf `false`.
      *
      * @param rtObj Der zu speichernde RT
@@ -77,7 +77,8 @@ public class _RT {
         BasicClassInformation classInfos = new BasicClassInformation(rtObj);
 
         // UUID ermitteln
-        UUID uuid_ = HelperGetUUID.getUUID(rtObj);
+//        UUID uuid_ = HelperGetUUID.getUUID(rtObj);
+        UUID uuid_ = ((MetaPersistenceRt) rtObj).uuid_();
 
         // Das Compartment ermitteln, das um den RT liegt
         Class<?> c = rtObj.getClass();
@@ -130,7 +131,7 @@ public class _RT {
         }
 
         // Alle Spieler aus der Datenbank ermitteln
-        Query query2 = session.createQuery("select entity from Entity as entity where entity.uuid_ IN elements(:uuids)");
+        Query query2 = session.createQuery("select entity from Entity as entity where entity.uuid_ IN :uuids");
         query2.setParameter("uuids", allPlayersUUIDs);
         List<?> allPlayersEntities = query2.list();
 
@@ -146,7 +147,8 @@ public class _RT {
         session.saveOrUpdate(rt);
 
         // Alle Variablen hinzufügen
-        DatabaseHelper.addAllVariablesToEntity(rtObj, rt, session);
+        String[] variableExceptions = {"$outer"};
+        DatabaseHelper.addAllVariablesToEntity(rtObj, rt, session, variableExceptions);
 
         // Die Relation speichern, in welchem CT der übergebene RT liegt
         rt.containedIn = ct;
@@ -163,7 +165,9 @@ public class _RT {
     }
 
     /**
-     * Löscht einen RT.
+     * Löscht einen RT. Dabei werden auch alle Spielrelationen dieses RT zu RTs gelöscht.
+     * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
+     * TODO Sollte man mit einem Garbage Collector diese RT in der Zukunft löschtn?
      *
      * @param rtObj Der RT, der gelöscht werden soll.
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
@@ -179,7 +183,8 @@ public class _RT {
         SessionFactory.openTransaction();
 
         // UUID ermitteln
-        UUID uuid_ = HelperGetUUID.getUUID(rtObj);
+//        UUID uuid_ = HelperGetUUID.getUUID(rtObj);
+        UUID uuid_ = ((MetaPersistenceRt) rtObj).uuid_();
 
         // DELETE auf der Datenbank ausführen
         Query query = session.createQuery("delete from RT as rt where rt.uuid_ = :uuid ");
