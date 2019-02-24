@@ -154,7 +154,7 @@ public class _RT {
         rt.containedIn = ct;
 
         // Die Spielrelationen hinzufügen
-        rt.playedBy = (Set<Entity>) allPlayersEntities;
+        rt.playedBy = new HashSet<Entity>((Collection<? extends Entity>) allPlayersEntities);
 
         // Eigentlichen RT speichern
         session.saveOrUpdate(rt);
