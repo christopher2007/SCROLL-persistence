@@ -13,7 +13,7 @@ public class Variable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
+    @Column(updatable = false, nullable = false, unique = true)
     public Long id;
 
     @Column(nullable=false)
@@ -22,7 +22,7 @@ public class Variable {
     @Type(type = "serializable")
     public Object value;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name="entity_id", nullable=false)
     public scroll.persistence.Model.Entity entity;
 

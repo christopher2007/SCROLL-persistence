@@ -16,20 +16,20 @@ abstract public class Entity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "id", updatable = false, nullable = false, unique = true)
+    @Column(updatable = false, nullable = false, unique = true)
     public Long id;
 
     @Column(nullable=false)
     public String classPackage;
 
-    @OneToMany(mappedBy="entity")
+    @OneToMany(mappedBy="entity", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @OnDelete(action = OnDeleteAction.CASCADE)
     public Set<Variable> variables;
 
     @Column(columnDefinition = "BINARY(16)", nullable=false, unique = true)
     public UUID uuid_;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinTable(name = "entity_rt",
             joinColumns = { @JoinColumn(name = "entity_id") },
             inverseJoinColumns = { @JoinColumn(name = "rt_id") })

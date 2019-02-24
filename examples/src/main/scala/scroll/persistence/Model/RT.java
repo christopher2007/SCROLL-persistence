@@ -9,11 +9,11 @@ import java.util.Set;
 @DiscriminatorValue("rt")
 public class RT extends scroll.persistence.Model.Entity {
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     @JoinColumn(name="ct_id", nullable=true)
     public CT containedIn;
 
-    @ManyToMany(mappedBy = "playing")
+    @ManyToMany(mappedBy = "playing", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST)
     public Set<scroll.persistence.Model.Entity> playedBy = new HashSet<>();
 
 }
