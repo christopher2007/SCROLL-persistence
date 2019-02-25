@@ -41,7 +41,8 @@ public class Serializer {
             } catch (IllegalArgumentException | IllegalAccessException e) {
                 e.printStackTrace();
             }
-            System.out.printf("%s %s.%s = %s;\n", value==null?" ":"*", field.getDeclaringClass().getSimpleName(), name, value);
+//            System.out.printf("%s %s.%s = %s;\n", value==null?" ":"*", field.getDeclaringClass().getSimpleName(), name, value);
+            System.out.printf("%s %s.%s = %s;\n", value==null?" ":"*", field.getDeclaringClass().getName(), name, value);
         }
     }
 

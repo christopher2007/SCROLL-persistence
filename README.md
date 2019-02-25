@@ -20,7 +20,14 @@ die SCROLL noch nicht brauchte).
 Danach das so entstandene Projekt in einer IDE öffnen (empfohlen eclipse oder IntelliJ).  
 Nun das scala Projekt aufbauen lassen und die Dependencies laden.  
 Zu guter letzt eines der Beispielprojekte starten (empfohlen `UniversityExample`).  
-Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://github.com/max-leuthaeuser/SCROLL
+Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://github.com/max-leuthaeuser/SCROLL  
+  
+**ALTERNATIV**  
+Dieses Repo laden, `build.sbt` öffnen und folgende Zeile hinzufügen:
+```java
+"com.github.max-leuthaeuser" %% "scroll" % {VERSION}
+```
+Wobei `{VERSION}` beliebige Version ist, getestet aktuell mit `1.8`.
 
 ### Erweiterung von SCROLL
 
@@ -84,6 +91,8 @@ var uuid_ = java.util.UUID.randomUUID
 - Die Variablen von NT/RT/CT werden nur persistiert, wenn die Datenstrukturen vom Java
   Serializer als Blob serialisiert werden können. Zu komplexe Kindklassen oder ähnliches können
   aktuell leider nicht gespeichert werden.
+- Zyklen nur begrenzt persistierbar (Ein RT 1 spielt RT 2, der wiederum RT 1 spielt).  
+  Ich gehe von Zyklenfreiheit in diesen Anwendungsfällen aus.
 
 
 

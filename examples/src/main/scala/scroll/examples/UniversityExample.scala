@@ -53,37 +53,37 @@ object UniversityExample {
 
 
 
-//      // === NT
-//
-//      // insert
-//      val hans = new Person("hans")
-//      Database.nt.createOrUpdate(hans)
-//
-//      // update
-//      hans.name = "hans2"
-//      Database.nt.createOrUpdate(hans)
-//
-//      // select
-////      val hansSelect = Database.select((new Person("a")).getClass, "name", "hans2").asInstanceOf[Person]
-////      val hansSelect = Database.select(new Person("a"), "name", "hans2").asInstanceOf[Person]
-////      var hansSelect = new Person("a")
-////      Database.nt.select(hansSelect, "name", "hans2")
-////      Database.select("scroll.examples.UniversityExample.Person", "name", "hans2")
-////      val hansSelect2 = Database.select("name", "hans2").asInstanceOf[Person]
-//      var hansSelectList: util.List[UniversityExample.Person] = Database.nt.select(
-//        classOf[UniversityExample.Person], "name", "hans2").asInstanceOf[util.List[UniversityExample.Person]]
-//      System.out.println("Anzahl der gefundenen NTs: " + hansSelectList.size())
-//
-//      // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
-//      var hansSelect = hansSelectList.get(0)
-//      hansSelect.name = "hans3"
-//      Database.nt.createOrUpdate(hansSelect)
-//
-//      // delete
-//      if(Database.nt.delete(hansSelect))
-//        println("deleted successfully")
-//      else
-//        println("did not delete a entity")
+      // === NT
+
+      // insert
+      val hans = new Person("hans")
+      Database.nt.createOrUpdate(hans)
+
+      // update
+      hans.name = "hans2"
+      Database.nt.createOrUpdate(hans)
+
+      // select
+//      val hansSelect = Database.select((new Person("a")).getClass, "name", "hans2").asInstanceOf[Person]
+//      val hansSelect = Database.select(new Person("a"), "name", "hans2").asInstanceOf[Person]
+//      var hansSelect = new Person("a")
+//      Database.nt.select(hansSelect, "name", "hans2")
+//      Database.select("scroll.examples.UniversityExample.Person", "name", "hans2")
+//      val hansSelect2 = Database.select("name", "hans2").asInstanceOf[Person]
+      var hansSelectList: util.List[UniversityExample.Person] = Database.nt.select(
+        classOf[UniversityExample.Person], "name", "hans2").asInstanceOf[util.List[UniversityExample.Person]]
+      System.out.println("Anzahl der gefundenen NTs: " + hansSelectList.size())
+
+      // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
+      var hansSelect = hansSelectList.get(0)
+      hansSelect.name = "hans3"
+      Database.nt.createOrUpdate(hansSelect)
+
+      // delete
+      if(Database.nt.delete(hansSelect))
+        println("deleted successfully")
+      else
+        println("did not delete a entity")
 
 
 
@@ -107,14 +107,15 @@ object UniversityExample {
 //      Database.rt.createOrUpdate(student2, true, true)
 
 
-      val hans = new Person("hans")
+
+//      val hans = new Person("hans")
       Database.nt.createOrUpdate(hans)
       val student2 = new Student
-      Database.rt.test(student2)
+//      Database.rt.test(student2)
       hans play student2
-      Database.rt.test(student2)
+//      Database.rt.test(student2)
       Database.rt.createOrUpdate(student2, false, true)
-      Database.rt.test(student2)
+//      Database.rt.test(student2)
 
 
 

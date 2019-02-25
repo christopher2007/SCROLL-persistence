@@ -99,12 +99,12 @@ public class _CT {
         ct.variables = new HashSet<Variable>(); // auch bei bereits bestehenden Entitäten leeren = alles löschen
         session.saveOrUpdate(ct);
 
-//        //TODO, führt aktuell noch zu großen Problemen
-//        // Alle Variablen hinzufügen
-//        DatabaseHelper.addAllVariablesToEntity(ctObj, ct, session);
-//
-//        // Eigentlichen CT speichern
-//        session.saveOrUpdate(ct);
+        // Alle Variablen hinzufügen
+        String[] variableExceptions = {"plays", "roleEquivalents", "roleImplications", "roleProhibitions", "thisComp"};
+        DatabaseHelper.addAllVariablesToEntity(ctObj, ct, session, variableExceptions);
+
+        // Eigentlichen CT speichern
+        session.saveOrUpdate(ct);
 
         // Sollen alle in dem CT enthaltenen RTs mit gespeichert werden?
         if(createOrUpdateAllContainingRT){

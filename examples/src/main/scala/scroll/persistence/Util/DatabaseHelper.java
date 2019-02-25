@@ -50,6 +50,19 @@ public class DatabaseHelper {
             Object variableValue = null;
             variableValue = field.get(obj);
 
+//            System.out.println("Variablenname = " + variableName);
+////            System.out.println("Klassenname = " + obj.getClass().getName().toString());
+//            System.out.println("Feldname der Klase = " + field.getDeclaringClass().getName());
+
+            // TODO manuell raus werfen
+            if(variableName.contains("$"))
+                continue;
+
+            if((field.getDeclaringClass().getName()).toString().contains("$$"))
+                continue;
+
+            System.out.println("nicht rausgeworfen");
+
             // Die Variable `uuid_` ignorieren wir, da sie auf Ebene der NT-Entity selbst gespeichert werden soll
             if(variableName == "uuid_")
                 continue;
