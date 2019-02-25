@@ -100,7 +100,10 @@ public class _CT {
         session.saveOrUpdate(ct);
 
         // Alle Variablen hinzufügen
-        String[] variableExceptions = {"plays", "roleEquivalents", "roleImplications", "roleProhibitions", "thisComp"};
+        String[] variableExceptions = {"plays", "roleEquivalents", "roleImplications", "roleProhibitions", "thisComp",
+                "AND$module", "MatchAny$module", "NOT$module", "OR$module", "PlayerEquality$module", "Relationship$module", "RoleGroup$module",
+                "Types$module", "WithProperty$module", "WithResult$module", "XOR$module", "bitmap$0",
+                "scroll$internal$support$RoleGroups$$roleGroups", "scroll$internal$support$RoleRestrictions$$restrictions"};
         DatabaseHelper.addAllVariablesToEntity(ctObj, ct, session, variableExceptions);
 
         // Eigentlichen CT speichern

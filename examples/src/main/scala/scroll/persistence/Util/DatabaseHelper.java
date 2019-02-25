@@ -54,14 +54,14 @@ public class DatabaseHelper {
 ////            System.out.println("Klassenname = " + obj.getClass().getName().toString());
 //            System.out.println("Feldname der Klase = " + field.getDeclaringClass().getName());
 
-            // TODO manuell raus werfen
-            if(variableName.contains("$"))
-                continue;
+//            // Alle statischen bekannten Variablen des Compartment entfernen
+//            // -> sehr unschön, da es ggf Variablennamen verbaut. Daher lieber gezielt die Variablen über `variableExceptions` ausschließen
+//            if(variableName.contains("$"))
+//                continue;
 
+            // Alle dynamischen Variablen des Compartment entfernen, die nicht Klassenvariablen sind
             if((field.getDeclaringClass().getName()).toString().contains("$$"))
                 continue;
-
-            System.out.println("nicht rausgeworfen");
 
             // Die Variable `uuid_` ignorieren wir, da sie auf Ebene der NT-Entity selbst gespeichert werden soll
             if(variableName == "uuid_")
