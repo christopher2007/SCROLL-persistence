@@ -50,11 +50,37 @@ def getRolesFromHash(hash: Int): Seq[AnyRef] = {
 }
 ```
 
-Die Klasse `Compartment` mit folgender Variable erweitern:   
+Die Datei `build.sbt` nach der Zeile
 
-```scala
-var uuid_ = java.util.UUID.randomUUID
+```sbtshell
+  libraryDependencies ++= lib.coreDependencies,
 ```
+
+mit folgendem Block erweitern (direkt danach einfügen, nichts austauschen)
+
+```sbtshell
+  libraryDependencies ++= Seq(
+    "mysql" % "mysql-connector-java" % "8.0.13",
+    "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
+    "javax.transaction" % "jta" % "1.1",
+    "com.github.v-ladynev" % "fluent-hibernate-core" % "0.3.1",
+
+    "javax.xml.bind" % "jaxb-api" % "2.3.1",
+    "javax.activation" % "activation" % "1.1.1",
+    "com.sun.xml.bind" % "jaxb-core" % "2.3.0.1",
+    "com.sun.xml.bind" % "jaxb-impl" % "2.3.1",
+
+    //    "edu.uci.ics" % "crawler4j" % "4.4.0",
+    "dom4j" % "dom4j" % "1.6.1",
+    "commons-logging" % "commons-logging" % "1.2",
+    "commons-collections" % "commons-collections" % "3.2.2",
+    "cglib" % "cglib" % "3.2.9",
+
+    "org.springframework.boot" % "spring-boot-starter-web" % "1.0.2.RELEASE",
+    "org.springframework.boot" % "spring-boot-starter-data-jpa" % "1.0.2.RELEASE",
+  ),
+```
+
 
 
 ## Stand

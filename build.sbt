@@ -1,51 +1,39 @@
-val akkaVersion = "2.5.18"
-val shapelessVersion = "2.3.3"
-val scalatestVersion = "3.0.5"
-val chocoVersion = "4.0.9"
-val slf4jVersion = "1.7.25"
-val guavaVersion = "27.0-jre"
-val emfcommonVersion = "2.15.0"
-val emfecoreVersion = "2.15.0"
-val umlVersion = "3.1.0.v201006071150"
+val lib = Dependencies
+val linting = Linting
 
-val mysqlVersion = "8.0.13"
-val hibernateVersion = "5.3.7.Final"
-val javaxVersion = "1.1"
-val javaxXmlVersion = "2.3.1"
+val utf8 = java.nio.charset.StandardCharsets.UTF_8.toString
 
 lazy val noPublishSettings =
   Seq(publish := {}, publishLocal := {}, publishArtifact := false)
 
+lazy val root = (project in file(".")).
+  settings(
+    name := "SCROLLRoot",
+    noPublishSettings
+  ).
+  aggregate(core, tests, examples)
+
 lazy val commonSettings = Seq(
-  scalaVersion := "2.12.7",
-  version := "1.61",
+  scalaVersion := lib.v.scalaVersion,
+  version := "1.9",
   mainClass := None,
   resolvers ++= Seq(
     "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
     "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases"
   ),
+  libraryDependencies ++= lib.coreDependencies,
   libraryDependencies ++= Seq(
-    "com.google.guava" % "guava" % guavaVersion,
-    "com.typesafe.akka" %% "akka-actor" % akkaVersion,
-    "com.chuusai" %% "shapeless" % shapelessVersion,
-    "org.choco-solver" % "choco-solver" % chocoVersion,
-    "org.slf4j" % "slf4j-simple" % slf4jVersion,
-    "org.scala-lang" % "scala-reflect" % scalaVersion.value,
-    "org.eclipse.emf" % "org.eclipse.emf.common" % emfcommonVersion,
-    "org.eclipse.emf" % "org.eclipse.emf.ecore" % emfecoreVersion,
-    "org.eclipse.uml2" % "org.eclipse.uml2.uml" % umlVersion,
-
-    "mysql" % "mysql-connector-java" % mysqlVersion,
-    "org.hibernate" % "hibernate-entitymanager" % hibernateVersion,
-    "javax.transaction" % "jta" % javaxVersion,
+    "mysql" % "mysql-connector-java" % "8.0.13",
+    "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
+    "javax.transaction" % "jta" % "1.1",
     "com.github.v-ladynev" % "fluent-hibernate-core" % "0.3.1",
 
-    "javax.xml.bind" % "jaxb-api" % javaxXmlVersion,
+    "javax.xml.bind" % "jaxb-api" % "2.3.1",
     "javax.activation" % "activation" % "1.1.1",
     "com.sun.xml.bind" % "jaxb-core" % "2.3.0.1",
     "com.sun.xml.bind" % "jaxb-impl" % "2.3.1",
 
-//    "edu.uci.ics" % "crawler4j" % "4.4.0",
+    //    "edu.uci.ics" % "crawler4j" % "4.4.0",
     "dom4j" % "dom4j" % "1.6.1",
     "commons-logging" % "commons-logging" % "1.2",
     "commons-collections" % "commons-collections" % "3.2.2",
@@ -54,8 +42,10 @@ lazy val commonSettings = Seq(
     "org.springframework.boot" % "spring-boot-starter-web" % "1.0.2.RELEASE",
     "org.springframework.boot" % "spring-boot-starter-data-jpa" % "1.0.2.RELEASE",
   ),
+  dependencyOverrides ++= lib.coreDependenciesOverrides,
   javacOptions in Compile ++= Seq("-source", "1.8", "-target", "1.8"),
   scalacOptions ++= Seq(
+    "-encoding", utf8,
     "-deprecation",
     "-feature",
     "-language:dynamics",
@@ -63,16 +53,29 @@ lazy val commonSettings = Seq(
     "-language:postfixOps",
     "-language:implicitConversions",
     "-unchecked",
-    "-target:jvm-1.8")
+    "-target:jvm-" + lib.v.jvm),
+  coverageExcludedPackages := "<empty>;scroll\\.benchmarks\\..*;scroll\\.examples\\.currency",
+  updateOptions := updateOptions.value.withCachedResolution(true),
+  historyPath := Option(target.in(LocalRootProject).value / ".history"),
+  cleanKeepFiles := cleanKeepFiles.value filterNot { file =>
+    file.getPath.endsWith(".history")
+  },
+  cancelable in Global := true,
+  logLevel in Global := {
+    if (insideCI.value) Level.Error else Level.Info
+  },
+  showSuccess := true,
+  showTiming := true,
+  initialize ~= { _ =>
+    val ansi = System.getProperty("sbt.log.noformat", "false") != "true"
+    if (ansi) System.setProperty("scala.color", "true")
+  }
 )
 
-lazy val root = (project in file(".")).settings(
-  name := "SCROLLRoot"
-).settings(noPublishSettings: _*).aggregate(core, tests, examples)
-
-lazy val core = (project in file("core")).
-  settings(commonSettings: _*).
+lazy val core = project.
   settings(
+    commonSettings,
+    linting.staticAnalysis,
     name := "SCROLL",
     scalacOptions ++= Seq(
       "-Xfatal-warnings",
@@ -89,10 +92,12 @@ lazy val core = (project in file("core")).
     organization := "com.github.max-leuthaeuser",
     publishTo := {
       val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-      else
-        Some("releases" at nexus + "service/local/staging/deploy/maven2")
+      if (isSnapshot.value) {
+        Option("snapshots" at nexus + "content/repositories/snapshots")
+      }
+      else {
+        Option("releases" at nexus + "service/local/staging/deploy/maven2")
+      }
     },
     publishMavenStyle := true,
     publishArtifact in Test := false,
@@ -120,21 +125,36 @@ lazy val core = (project in file("core")).
         </developers>
   )
 
-lazy val examples = (project in file("examples")).
-  settings(commonSettings: _*).dependsOn(core)
+lazy val examples = project.
+  settings(commonSettings).
+  dependsOn(core)
 
-lazy val tests = (project in file("tests")).
-  settings(commonSettings: _*).
+lazy val tests = project.
   settings(
-    commands += Command.command("testUntilFailed") { state => "test" :: "testUntilFailed" :: state },
-    testOptions in Test := Seq(Tests.Filter(s => s.endsWith("Suite"))),
-    libraryDependencies ++= Seq("org.scalatest" %% "scalatest" % scalatestVersion % "test")
-  ).dependsOn(core, examples)
+    commonSettings,
+    testOptions in Test := Seq(
+      Tests.Filter(s => s.endsWith("Suite")),
+      Tests.Argument(TestFrameworks.ScalaTest
+        // F: show full stack traces
+        // S: show short stack traces
+        // D: show duration for each test
+        // I: print "reminders" of failed and canceled tests at the end of the summary,
+        //    eliminating the need to scroll and search to find failed or canceled tests.
+        //    replace with G (or T) to show reminders with full (or short) stack traces
+        // K: exclude canceled tests from reminder
+        , "-oDI"
+        // Periodic notification of slowpokes (tests that have been running longer than 30s)
+        , "-W", "30", "30"
+      )
+    ),
+    libraryDependencies ++= lib.testDependencies
+  ).
+  dependsOn(core, examples)
 
-lazy val benchmark = (project in file("benchmark")).
-  settings(commonSettings: _*).
-  dependsOn(core).
+lazy val benchmark = project.
+  settings(
+    commonSettings,
+    mainClass in(Jmh, run) := Option("scroll.benchmarks.RunnerApp")
+  ).
   enablePlugins(JmhPlugin).
-  settings(
-    mainClass in(Jmh, run) := Some("scroll.benchmarks.RunnerApp")
-  )
+  dependsOn(core)

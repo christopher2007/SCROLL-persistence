@@ -17,11 +17,11 @@ source_gen*
 .gitattributes
 .gitlab-ci.yml
 .travis.yml
-README_ORIGINAL.md
-benchmark/
+#README_from-SCROLL.md
+#benchmark/
 classes/
-core/
-tests/
+#core/
+#tests/
 examples/src/main/scala/META-INF/
 examples/src/main/scala/scroll/examples/currency/
 examples/src/main/scala/scroll/examples/APICallsExample.scala

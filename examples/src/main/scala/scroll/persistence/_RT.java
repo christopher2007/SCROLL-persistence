@@ -6,7 +6,7 @@ import org.springframework.objenesis.Objenesis;
 import org.springframework.objenesis.ObjenesisStd;
 import scala.collection.Seq;
 import scroll.internal.Compartment;
-import scroll.internal.IPlayer;
+//import scroll.internal.IPlayer;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
