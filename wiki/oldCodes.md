@@ -1,6 +1,8 @@
-# Session Factory
+# alte Code-Ansätze
 
-## Scala Ansatz
+## Session Factory
+
+### Scala Ansatz
 
 Verschiedene Ansätze, alle untergebracht in:
 
@@ -77,14 +79,14 @@ HibernateUtil.shutdown()
 
 
 
-### aus `hibernate.cfg.xml` erzeugen
+#### aus `hibernate.cfg.xml` erzeugen
 
 ```scala
 val sessionFactory = new Configuration().configure().addPackage("scroll.persistence.Model")
 return sessionFactory.buildSessionFactory
 ```
 
-### Packages automatisch scannen
+#### Packages automatisch scannen
 
 ```scala
 //val classes = EntityScanner.scanPackages("my.com.entities", "my.com.other.entities").result
@@ -98,7 +100,7 @@ val sessionFactory = metadataSources.buildMetadata
 return sessionFactory.buildSessionFactory
 ```
 
-### Teilkonfiguration
+#### Teilkonfiguration
 
 ```scala
 val prop = new Properties()
@@ -113,7 +115,7 @@ val sessionFactory = new Configuration()
 return sessionFactory.buildSessionFactory
 ```
 
-### Vollkonfiguration
+#### Vollkonfiguration
 
 ```scala
 val prop = new Properties()
@@ -136,18 +138,18 @@ for (annotatedClass <- classes) {
 return sessionFactory.buildSessionFactory
 ```
 
-## Java Ansatz
+### Java Ansatz
 
 Da die Reflection in Scala unzureichend ist, folgten einige Java Ansätze. Diese befinden sich zusammen mit der finalen Lösung in den Klassen `SessionFactory` und `HibernateConfig`.
 
 
 
-# Compartment durch einen RT ermitteln
+## Compartment durch einen RT ermitteln
 
 Wird der Database Klasse ein RT übergeben, so muss anhand dieses Objektes das Compartment ermittelt werden.  
 Da aber leider die konkrete RT Klasse im Vorfeld nicht bekannt ist (es köntne ein `student` sein, oder ein `professor`, ...), wird nur ein `Object` hardgecoded übergeben. Und von diesem muss nun das Compartment ermittelt werden:
 
-## Ansatz 1
+### Ansatz 1
 
 ```java
 IPlayer test = (IPlayer) rtObj;
@@ -159,7 +161,7 @@ geht nicht, da ein RT nicht auf `IPlayer` gecast werden kann (Klasse erbt nicht 
 Exception in thread "main" java.lang.ClassCastException: class scroll.examples.UniversityExample$University$Student cannot be cast to class scroll.internal.IPlayer (scroll.examples.UniversityExample$University$Student and scroll.internal.IPlayer are in unnamed module of loader 'app')
 ```
 
-## Ansatz 2
+### Ansatz 2
 
 ```java
 Compartment.Player test = (Compartment.Player) rtObj;
@@ -171,7 +173,7 @@ Exakt gleiches Problem hierbei.
 Exception in thread "main" java.lang.ClassCastException: class scroll.examples.UniversityExample$University$Student cannot be cast to class scroll.internal.Compartment$Player (scroll.examples.UniversityExample$University$Student and scroll.internal.Compartment$Player are in unnamed module of loader 'app')
 ```
 
-## Ansatz 3
+### Ansatz 3
 
 ```java
 Class<?> c = rtObj.getClass();
