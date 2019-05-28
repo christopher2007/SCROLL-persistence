@@ -23,3 +23,25 @@ Alles so variabel, dass man später mit richtiger Serialisierung alles ablegen k
 -> siehe Klassendiagramm  
 Das UML Klassendiagramm beinhaltet auch die vier Ansätze für den Projektaufbau. Der letzte ist der
 neuste und umgesetzte Ansatz.
+
+
+
+## Grundregel
+
+Ein CT kennt die RTs, die in ihm sind und mindestens eine Spielrelation haben. Hat ein RT keine einzige Played-By Beziehung,
+so kennt der CT diesen nicht. Zudem kennt der CT alle Spielpartner von den in ihm enthaltenen RTs.  
+Ein RT kennt seine Spielpartner und den CT in dem er sich befindet.  
+Ein NT kennt nichts.  
+  
+Nach diesem Prinzip funktioniert auch das Persistieren von Entitäten in diesem Projekt:
+
+- CT kann seine RTs und deren Spielpartner (CT oder NT) speichern, nicht aber seine RT die niemanden spielen
+- RT kann seine Spielpartner (CT oder NT) und auch den CT, in dem er sich befindet, speichern
+- NT kann nur sich selbst speichern
+
+Beim Laden jedoch sieht es etwas anders aus, denn sobald Entitäten persistiert wurde weiß das Persistierungsframework
+alles. Und mit diesem globalen Wissen kann man nun beispielsweise auch einen NT mit allen Spielpartnern laden.
+    
+Aber genau das ist der Grund, warum beim Speichern nicht jede Kombination möglich ist und manche Features
+in der Aufgabenliste (=`README.md`) durchgestrichen sind. Dies ist schlichtweg nicht möglich, da das zugrunde liegende
+Framework `SCROLL` diese Operationen aufgrund fehlender Informationsstruktur nicht liefert. 

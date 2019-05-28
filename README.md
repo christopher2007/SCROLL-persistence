@@ -12,6 +12,9 @@ Siehe Wiki für API und Dokumentation:
 
 ## Stand des Projektes
 
+Durchgestrichene Features sind aufgrund fehlender Informationsstrukturen des zugrunde liegenden Frameworks `SCROLL` nicht
+möglich. Mehr dazu in der Wiki unter `Grundlage` -> `Grundregel`
+
 1. [x] Konzeption und Klassenentwurf, Ergebnis: Klassendiagramm
 1. [x] Einbetten von Hibernate in das Projekt, inklusive Session Management
 1. [x] Implementieren der Klassen für die Abbildung der Persistenz
@@ -25,10 +28,10 @@ Siehe Wiki für API und Dokumentation:
 
 1. [ ] NT
 
-   1. [ ] NT INSERT / UPDATE
+   1. [x] NT INSERT / UPDATE
       1. [x] NT speichern/updaten, RT Playing ignorieren, keine Duplikatserkennung semantisch gleicher Instanzen
       1. [x] NT speichern/updaten, RT Playing ignorieren, Duplikatserkennung semantisch gleicher Instanzen
-      1. [ ] NT speichern/updaten, RT Playing mit speichern/updaten **geht das überhaupt?**
+      1. [ ] ~~NT speichern/updaten, RT Playing mit speichern/updaten~~
 
    1. [ ] NT SELECT
       1. [x] NT laden, RT Playing ignorieren
