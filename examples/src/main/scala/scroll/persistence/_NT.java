@@ -37,7 +37,7 @@ public class _NT {
 //        Serializer.printAllFields(ntObj);
 
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
+        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
@@ -81,7 +81,9 @@ public class _NT {
         session.saveOrUpdate(nt);
 
         // Alle Variablen hinzufügen
-        DatabaseHelper.addAllVariablesToEntity(ntObj, nt, session);
+//        String[] variableExceptions = {"cached", "checkForCycles"};
+        String[] variableExceptions = {};
+        DatabaseHelper.addAllVariablesToEntity(ntObj, nt, session, variableExceptions);
 
 
         // Eigentlichen NT speichern
@@ -95,7 +97,7 @@ public class _NT {
     /**
      * Löscht einen NT. Dabei werden auch alle Spielrelationen dieses NT zu RTs gelöscht.
      * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
-     * TODO Sollte man mit einem Garbage Collector diese RT in der Zukunft löschtn?
+     * TODO Sollte man mit einem Garbage Collector dessen RT in der Zukunft löschen?
      *
      * @param ntObj Der NT, der gelöscht werden soll.
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
@@ -103,7 +105,7 @@ public class _NT {
      */
     public boolean delete(Object ntObj) throws Exception {
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
+        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
@@ -159,7 +161,7 @@ public class _NT {
 //     */
 //    public void select(Object ntObj, String variableName, Object value) throws Exception {
 //        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-//        if(!MetaPersistenceNt.class.isAssignableFrom(ntObj.getClass()))
+//        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
 //            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 //
 //        // Session und Transaktion ermitteln bzw. initialisieren
@@ -194,7 +196,7 @@ public class _NT {
 //        }
 //
 //        // Alle Klassenvariablen durchgehen und setzen
-//        Collection<Field> fields = Serializer.getAllFields(ntObj.getClass());
+//        Collection<Field> fields = Serializer.getAllFields(BasicClassInformation.getClass(ntObj));
 //        for(Field fieldOriginalNt : fields){
 ////            Field fieldOriginalNt2 = ntObj.getClass().getDeclaredField(fieldOriginalNt.getName());
 ////            fieldOriginalNt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
@@ -248,6 +250,11 @@ public class _NT {
         query.setParameter("value", value);
         List<?> allNTs = query.list();
 
+        System.out.println("classPackage: " + classInfos.classPackage);
+        System.out.println("name: " + variableName);
+        System.out.println("value: " + value);
+        System.out.println("größe: " + allNTs.size());
+
         // Rückgabe Liste initialisieren
 //        List<?> results = new ArrayList<Object>();
 //        ArrayList<?> results = ListHelper.listOf((Class<?>) ntObjClass);
@@ -258,40 +265,8 @@ public class _NT {
             for(NT nt : (List<NT>) allNTs){
 //                nt = (NT) session.merge(nt); // re-attach
 
-                // Eine Instanz der Zielklasse erzeugen
-                Objenesis o = new ObjenesisStd(false); // cache disabled
-                Object newObj = o.newInstance(ntObjClass);
-
-                // Nur eine Klassenvariable neu setzen
-//                Field field = newObj.getClass().getDeclaredField(variableName);
-//                field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
-//                field.set(newObj, value);
-
-                // Die Variablen der ermittelten Entität aufbereiten
-                HashMap<String, Object> variablesSelected = new HashMap<String, Object>();
-                for(Variable var : nt.variables){
-                    variablesSelected.put(var.name, var.value);
-                }
-
-                // Alle Klassenvariablen durchgehen und setzen
-                Collection<Field> fields = Serializer.getAllFields(newObj.getClass());
-                for(Field fieldOriginalNt : fields){
-//                    Field fieldOriginalNt2 = newObj.getClass().getDeclaredField(fieldOriginalNt.getName());
-//                    fieldOriginalNt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
-//                    fieldOriginalNt2.set(newObj, fieldOriginalNt.get(fieldOriginalNt));
-
-                    // auch `privat` Variablen müssen veränderbar sein
-                    fieldOriginalNt.setAccessible(true);
-
-                    // Das Feld `uuid_` speziell behandeln, da es als Variablen-Entity nicht existiert, sondern im NT-Entity gespeichert wurde
-                    if(fieldOriginalNt.getName() == "uuid_"){
-                        fieldOriginalNt.set(newObj, nt.uuid_);
-                        continue;
-                    }
-
-                    // normales setzen eines Attributs
-                    fieldOriginalNt.set(newObj, variablesSelected.get(fieldOriginalNt.getName()));
-                }
+                // Aus der Entität aus der Datenbank eine Instanz der eigentlich echten Anwendung machen
+                Object newObj = Serializer.getInstanceOfEntity(nt, ntObjClass);
 
                 // Das fertige neue Objekt der Rückgabe Liste hinzufügen
                 results.add(newObj);

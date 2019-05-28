@@ -17,6 +17,12 @@ public class SessionFactory {
 
 //    @Bean
     public static org.hibernate.SessionFactory getSessionFactory(){
+//        // Log Level setzen
+//        Logger log = Logger.getLogger("org.hibernate");
+////        log.setLevel(Level.DEBUG);
+////        log.setLevel(Level.WARN);
+//        log.setLevel(Level.FATAL);
+
         // if already cached, use this
         if (instance != null)
             return instance;

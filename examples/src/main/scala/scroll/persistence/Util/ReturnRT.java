@@ -7,6 +7,6 @@ public class ReturnRT {
 
     public Object rt;
 
-    public List<?> players = new ArrayList<>();
+    public List<Object> players = new ArrayList<>();
 
 }

@@ -2,11 +2,8 @@ package scroll.persistence;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
-import org.springframework.objenesis.Objenesis;
-import org.springframework.objenesis.ObjenesisStd;
-import scala.collection.Seq;
-import scroll.internal.Compartment;
 //import scroll.internal.IPlayer;
+import scala.collection.JavaConverters;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
@@ -14,7 +11,6 @@ import scroll.persistence.Model.*;
 import scroll.persistence.Util.*;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 
 public class _RT {
@@ -31,7 +27,7 @@ public class _RT {
 
     /**
      * Ruft die gleichnamige Methode der Klasse auf und setzt den Übergabeparameter `createOrupdatePlayers` und auch `createOrUpdateContainingCT`
-     * auf `false`.
+     * auf `false`. (Spart sich die Prüfungen auf Existenz, Laufzeit optimiert, Verantwortung beim Entwickler.)
      *
      * @param rtObj Der zu speichernde RT
      * @throws Exception
@@ -65,7 +61,7 @@ public class _RT {
 //        Serializer.printAllFields(rtObj);
 
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceRt.class.isAssignableFrom(rtObj.getClass()))
+        if(!MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rtObj)))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
@@ -80,7 +76,7 @@ public class _RT {
         UUID uuid_ = ((MetaPersistenceRt) rtObj).uuid_();
 
         // Das Compartment ermitteln, das um den RT liegt
-        Class<?> c = rtObj.getClass();
+        Class<?> c = BasicClassInformation.getClass(rtObj);
         Field f = c.getDeclaredField("$outer");
         f.setAccessible(true);
 //        Compartment compartment = (Compartment) f.get(rtObj);
@@ -94,18 +90,19 @@ public class _RT {
 
         // Alle Spieler des aktuellen RT ermitteln
 //        List<Object> allPlayers = (List<Object>) compartment.getRolesFromHash(rtObj.hashCode()).toList();
-        List<Object> allPlayers = scala.collection.JavaConversions.seqAsJavaList(compartment.getRolesFromHash(rtObj.hashCode()));
+//        List<Object> allPlayers = scala.collection.JavaConversions.seqAsJavaList(compartment.getRolesFromHash(rtObj.hashCode()));
+        Collection allPlayers = JavaConverters.asJavaCollection(compartment.getRolesFromHash(rtObj.hashCode()));
 
         // Eventuell sollen die Spieler, die diesen RT spielen, mit persistiert werden
         // (andernfalls wird einfach angenommen, dass sie schon in der Datenbank existieren)
         if(createOrUpdatePlayers){
             for(Object player : allPlayers){
                 // Der Spieler kann ein NT, CT oder RT sein, daher muss unterschieden werden
-                if(MetaPersistenceNt.class.isAssignableFrom(player.getClass())) // NT
+                if(MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(player))) // NT
                     Database.nt().createOrUpdate(player);
-                else if(MetaPersistenceCt.class.isAssignableFrom(player.getClass())) // CT
+                else if(MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(player))) // CT
                     Database.ct().createOrUpdate(player);
-                else if(MetaPersistenceRt.class.isAssignableFrom(player.getClass())) // RT
+                else if(MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(player))) // RT
                     Database.rt().createOrUpdate(player);
                 else // nichts
                     throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
@@ -168,6 +165,7 @@ public class _RT {
 
         // Die Spielrelationen hinzufügen
         rt.playedBy = new HashSet<Entity>((Collection<? extends Entity>) allPlayersEntities);
+//        rt.playedBy = new ArrayList<Entity>((Collection<? extends Entity>) allPlayersEntities);
 
         // Eigentlichen RT speichern
         session.saveOrUpdate(rt);
@@ -180,7 +178,6 @@ public class _RT {
     /**
      * Löscht einen RT. Dabei werden auch alle Spielrelationen dieses RT zu RTs gelöscht.
      * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
-     * TODO Sollte man mit einem Garbage Collector diese RT in der Zukunft löschtn?
      *
      * @param rtObj Der RT, der gelöscht werden soll.
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
@@ -188,7 +185,7 @@ public class _RT {
      */
     public boolean delete(Object rtObj) throws Exception {
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceRt.class.isAssignableFrom(rtObj.getClass()))
+        if(!MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rtObj)))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
@@ -259,40 +256,8 @@ public class _RT {
             for(RT rt : (List<RT>) allRTs){
 //                rt = (RT) session.merge(rt); // re-attach
 
-                // Eine Instanz der Zielklasse erzeugen
-                Objenesis o = new ObjenesisStd(false); // cache disabled
-                Object newObj = o.newInstance(rtObjClass);
-
-                // Nur eine Klassenvariable neu setzen
-//                Field field = newObj.getClass().getDeclaredField(variableName);
-//                field.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
-//                field.set(newObj, value);
-
-                // Die Variablen der ermittelten Entität aufbereiten
-                HashMap<String, Object> variablesSelected = new HashMap<String, Object>();
-                for(Variable var : rt.variables){
-                    variablesSelected.put(var.name, var.value);
-                }
-
-                // Alle Klassenvariablen durchgehen und setzen
-                Collection<Field> fields = Serializer.getAllFields(newObj.getClass());
-                for(Field fieldOriginalRt : fields){
-//                    Field fieldOriginalRt2 = newObj.getClass().getDeclaredField(fieldOriginalRt.getName());
-//                    fieldOriginalRt2.setAccessible(true); // auch `privat` Variablen müssen veränderbar sein
-//                    fieldOriginalRt2.set(newObj, fieldOriginalRt.get(fieldOriginalRt));
-
-                    // auch `privat` Variablen müssen veränderbar sein
-                    fieldOriginalRt.setAccessible(true);
-
-                    // Das Feld `uuid_` speziell behandeln, da es als Variablen-Entity nicht existiert, sondern im RT-Entity gespeichert wurde
-                    if(fieldOriginalRt.getName() == "uuid_"){
-                        fieldOriginalRt.set(newObj, rt.uuid_);
-                        continue;
-                    }
-
-                    // normales setzen eines Attributs
-                    fieldOriginalRt.set(newObj, variablesSelected.get(fieldOriginalRt.getName()));
-                }
+                // Aus der Entität aus der Datenbank eine Instanz der eigentlich echten Anwendung machen
+                Object newObj = Serializer.getInstanceOfEntity(rt, rtObjClass);
 
                 // Ein Element der Rückgabeliste erzeugen
                 ReturnRT tmp = new ReturnRT();
@@ -301,13 +266,14 @@ public class _RT {
                 // Sollen auch die Spieler mit zurück gegeben werden?
                 if(alsoSelectPlayers){
                     for(Entity e : rt.playedBy){
+
                         // Der Spieler kann ein NT, CT oder RT sein, daher muss unterschieden werden
                         if(e instanceof NT) // NT
-                            tmp.players.add(null); //TODO
+                            tmp.players.add(Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage)));
                         else if(e instanceof CT) // CT
-                            tmp.players.add(null); //TODO
+                            tmp.players.add(Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage)));
                         else if(e instanceof RT) // RT
-                            tmp.players.add(null); //TODO
+                            throw new Exception("Ein RT darf keinen RT spielen. Nur NT oder CT dürfen RT spielen.");
                         else // nichts
                             throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
                     }
@@ -328,7 +294,7 @@ public class _RT {
 
     public void test(Object rtObj) throws NoSuchFieldException, IllegalAccessException {
         // Das Compartment ermitteln, das um den RT liegt
-        Class<?> c = rtObj.getClass();
+        Class<?> c = BasicClassInformation.getClass(rtObj);
         Field f = c.getDeclaredField("$outer");
         f.setAccessible(true);
 //        Compartment compartment = (Compartment) f.get(rtObj);

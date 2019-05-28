@@ -17,7 +17,7 @@ public class HelperGetUUID {
         UUID uuid_;
         try {
 //            Field f = o.getClass().getField("uuid_"); // Nur public und nur direkte Variablen
-            Field f = o.getClass().getDeclaredField("uuid_"); // auch private und protected und auch nach Vererbungen
+            Field f = BasicClassInformation.getClass(o).getDeclaredField("uuid_"); // auch private und protected und auch nach Vererbungen
             f.setAccessible(true);
             uuid_ = (UUID) f.get(o);
         }catch(Exception e){

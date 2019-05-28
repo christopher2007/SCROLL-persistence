@@ -14,9 +14,9 @@ source_gen*
 /bin/
 
 # christopher2007/SCROLL-persistence
-.gitattributes
-.gitlab-ci.yml
-.travis.yml
+#.gitattributes
+#.gitlab-ci.yml
+#.travis.yml
 #README_from-SCROLL.md
 #benchmark/
 classes/

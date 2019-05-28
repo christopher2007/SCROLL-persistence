@@ -43,7 +43,7 @@ public class DatabaseHelper {
     public static void addAllVariablesToEntity(Object obj, Entity e, Session session, String[] variableExceptions)
             throws IllegalArgumentException, IllegalAccessException {
         // Über alle Variablen des übergebenen RT iterieren und diese in der Datenbank speichern
-        Collection<Field> fields = Serializer.getAllFields(obj.getClass());
+        Collection<Field> fields = Serializer.getAllFields(BasicClassInformation.getClass(obj));
         for(Field field : fields){
             field.setAccessible(true); // auch `privat` Variablen müssen lesbar und schreibbar sein
             String variableName = field.getName();

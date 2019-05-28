@@ -13,15 +13,27 @@ public class BasicClassInformation {
         if(o instanceof Class){
             Class c = (Class) o;
             this.class_ = c;
-            this.className = c.getSimpleName();
-//            this.classPackage = c.getCanonicalName();
-            this.classPackage = c.getName();
-        }else {
-            this.class_ = o.getClass();
-            this.className = o.getClass().getSimpleName();
-//            this.classPackage = o.getClass().getCanonicalName();
-            this.classPackage = o.getClass().getName();
+        } else {
+//            this.class_ = o.getClass();
+            this.class_ = BasicClassInformation.getClass(o);
         }
+        this.className = this.class_.getSimpleName();
+//        this.classPackage = this.class_.getCanonicalName();
+        this.classPackage = this.class_.getName();
+    }
+
+//    public BasicClassInformation(Object o) throws Exception {
+//        this.class_ = BasicClassInformation.getClass(o);
+//        this.className = this.class_.getSimpleName();
+////            this.classPackage = this.class_.getCanonicalName();
+//        this.classPackage = this.class_.getName();
+//    }
+
+    public static Class getClass(Object o){
+        // innere Anonyme Klassen müssen über die Superklasse gehen
+        if(o.getClass().toString().contains("$anon$")) // Ein `$anon$` weißt auf eine Anonyme Innere Klasse hin
+            return o.getClass().getSuperclass();
+        return o.getClass();
     }
 
 }

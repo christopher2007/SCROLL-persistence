@@ -3,6 +3,8 @@ val linting = Linting
 
 val utf8 = java.nio.charset.StandardCharsets.UTF_8.toString
 
+ThisBuild / scalaVersion := lib.v.scalaVersion
+
 lazy val noPublishSettings =
   Seq(publish := {}, publishLocal := {}, publishArtifact := false)
 
@@ -23,10 +25,19 @@ lazy val commonSettings = Seq(
   ),
   libraryDependencies ++= lib.coreDependencies,
   libraryDependencies ++= Seq(
+    // SCROLL selbst
+    //"com.github.max-leuthaeuser" %% "scroll" % "1.8",
+    
     "mysql" % "mysql-connector-java" % "8.0.13",
     "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
     "javax.transaction" % "jta" % "1.1",
-    "com.github.v-ladynev" % "fluent-hibernate-core" % "0.3.1",
+//    "com.github.v-ladynev" % "fluent-hibernate-core" % "0.3.1",
+    "org.hibernate" % "hibernate-core" % "5.3.7.Final",
+
+    // Logging
+//    "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
+//    "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
+//    "org.jboss.logging" % "jboss-logging" % "3.3.2.Final",
 
     "javax.xml.bind" % "jaxb-api" % "2.3.1",
     "javax.activation" % "activation" % "1.1.1",
@@ -75,7 +86,7 @@ lazy val commonSettings = Seq(
 lazy val core = project.
   settings(
     commonSettings,
-    linting.staticAnalysis,
+//    linting.staticAnalysis, // muss aktuell entfernt sein, da der core von SCROLL selbst gegenüber Lint den Standards nicht entspricht und ich nicht das zugrundeliegende Package, auf das ich mich verlasse, umschreiben möchte
     name := "SCROLL",
     scalacOptions ++= Seq(
       "-Xfatal-warnings",

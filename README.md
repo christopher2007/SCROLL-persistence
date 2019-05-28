@@ -1,267 +1,87 @@
-## Allgemeines
+# SCROLL persistence
 
-Persistierungs Implementierung für:  
-https://github.com/max-leuthaeuser/SCROLL
-
-
-
-## Installationsanleitung
-
-Folgende Projekte müssen in ein und den selben Ordner kopiert werden:
-
-- zuerst: https://github.com/max-leuthaeuser/SCROLL
-- nachfolgend: https://github.com/christopher2007/SCROLL-persistence
-
-Die `build.sbt` müssen aus beiden Projekten vorsichtig kombiniert werden, da nicht sichergestellt
-sein kann, dass die Versionen kompatibel sind (SCROLL könnte Dependencies angepasst haben, die die
-Persistence noch nicht bedacht hat. Und die Persistence hat auf jeden Fall Dependencies hinzugefügt,
-die SCROLL noch nicht brauchte).  
+Eine Implementierung für Persistierung des Projektes `SCROLL` (_SCala ROLes Language_):  
+https://github.com/max-leuthaeuser/SCROLL  
   
-Danach das so entstandene Projekt in einer IDE öffnen (empfohlen eclipse oder IntelliJ).  
-Nun das scala Projekt aufbauen lassen und die Dependencies laden.  
-Zu guter letzt eines der Beispielprojekte starten (empfohlen `UniversityExample`).  
-Weiterführende Hilfe zu SCROLL findet man in folgendem Repository: https://github.com/max-leuthaeuser/SCROLL  
-  
-**ALTERNATIV**  
-Dieses Repo laden, `build.sbt` öffnen und folgende Zeile hinzufügen:
-```java
-"com.github.max-leuthaeuser" %% "scroll" % {VERSION}
-```
-Wobei `{VERSION}` beliebige Version ist, getestet aktuell mit `1.8`.
+Siehe Wiki für API und Dokumentation:
 
-### Erweiterung von SCROLL
-
-Die Klasse `Compartment` mit folgender Methode erweitern:  
-  
-```scala
-/**
- * get all rigid types of the hash from one role type.
- * @param hash
- * @return
- */
-def getRolesFromHash(hash: Int): Seq[AnyRef] = {
-    plays.allPlayers.foreach { p =>
-        if (p.hashCode() == hash)
-        {
-          return p.predecessors()
-        }
-    }
-    null
-}
-```
-
-Die Datei `build.sbt` nach der Zeile
-
-```sbtshell
-  libraryDependencies ++= lib.coreDependencies,
-```
-
-mit folgendem Block erweitern (direkt danach einfügen, nichts austauschen)
-
-```sbtshell
-  libraryDependencies ++= Seq(
-    "mysql" % "mysql-connector-java" % "8.0.13",
-    "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
-    "javax.transaction" % "jta" % "1.1",
-    "com.github.v-ladynev" % "fluent-hibernate-core" % "0.3.1",
-
-    "javax.xml.bind" % "jaxb-api" % "2.3.1",
-    "javax.activation" % "activation" % "1.1.1",
-    "com.sun.xml.bind" % "jaxb-core" % "2.3.0.1",
-    "com.sun.xml.bind" % "jaxb-impl" % "2.3.1",
-
-    //    "edu.uci.ics" % "crawler4j" % "4.4.0",
-    "dom4j" % "dom4j" % "1.6.1",
-    "commons-logging" % "commons-logging" % "1.2",
-    "commons-collections" % "commons-collections" % "3.2.2",
-    "cglib" % "cglib" % "3.2.9",
-
-    "org.springframework.boot" % "spring-boot-starter-web" % "1.0.2.RELEASE",
-    "org.springframework.boot" % "spring-boot-starter-data-jpa" % "1.0.2.RELEASE",
-  ),
-```
+- für [SCROLL](https://github.com/max-leuthaeuser/SCROLL/wiki) (SCROLL selbst, Grundlegendes, externes Repository)
+- für [SCROLL-persistence](https://github.com/christopher2007/SCROLL-persistence/wiki) (nur die Persistierung von SCROLL, dieses Repository)
 
 
 
-## Stand
+## Stand des Projektes
 
 1. [x] Konzeption und Klassenentwurf, Ergebnis: Klassendiagramm
 1. [x] Einbetten von Hibernate in das Projekt, inklusive Session Management
 1. [x] Implementieren der Klassen für die Abbildung der Persistenz
 1. [x] Reflection und Serializer programmieren -> Example Entitäten aufsplitten, Variablen mit Werten ermittelbar
-1. [x] Primitives Speichern von NTs, keine Duplikatserkennung
-1. [x] Primitives Laden von NTs, alle auf ein Mal, Variablen Mapping nur über vorherige Angabe
-1. [x] Komplexeres Speichern von NTs, Duplikatserkennung
-1. [x] Komplexes Laden von NTs, konkrete Ergebnisse zurück geben, Variablen Mapping automatisiert
-1. [x] Löschen von NTs
-1. [x] Primitives Speichern von CTs, ohne Zusammenhang anderer Entities
-1. [ ] Primitives Laden von CTs, ohne Zusammenhang anderer Entities
-1. [ ] Komplexes Speichern von CTs, mit Zusammenhang anderer Entities
-1. [ ] Komplexes Laden von CTs, mit Zusammenhang anderer Entities
-1. [x] Löschen von CTs
-1. [x] Primitives Speichern von RTs, ohne Zusammenhang anderer Entities
-1. [x] Primitives Laden von RTs, ohne Zusammenhang anderer Entities
-1. [ ] Komplexes Speichern von RTs, mit Zusammenhang anderer Entities
-1. [ ] Komplexes Laden von RTs, mit Zusammenhang anderer Entities
-1. [x] Löschen von RTs
+
+1. [x] Herangehensweise, Ausprobieren von verschiedenen Ansätzen
+   1. [x] Primitives Laden von NTs, alle auf ein Mal, Variablen Mapping nur über vorherige Angabe
+   1. [x] Komplexes Laden von NTs, konkrete Ergebnisse zurück geben (Abfrage nach Values), Variablen Mapping automatisiert
 
 
 
-## Aktuelle Limitierungen
+1. [ ] NT
 
-- kein Spring Kontext möglich, daher leider keine Repositories
-- Läd man zwei NT aus der Datenbank, die die gleiche Instanz von RT gespielt haben, so erhält man
-  zwei NT zurück, von denen jeder einen eigenen RT besitzt. Diese beiden RT haben zwar die gleiche
-  UUID und werden von der `Database` Klasse auch als gleich angesehen, sind in Scala bzw. Java
-  jedoch streng genommen zwei unterschiedliche Objekte.
-- Die Variablen von NT/RT/CT werden nur persistiert, wenn die Datenstrukturen vom Java
-  Serializer als Blob serialisiert werden können. Zu komplexe Kindklassen oder ähnliches können
-  aktuell leider nicht gespeichert werden.
-- Zyklen nur begrenzt persistierbar (Ein RT 1 spielt RT 2, der wiederum RT 1 spielt).  
-  Ich gehe von Zyklenfreiheit in diesen Anwendungsfällen aus.
+   1. [ ] NT INSERT / UPDATE
+      1. [x] NT speichern/updaten, RT Playing ignorieren, keine Duplikatserkennung semantisch gleicher Instanzen
+      1. [x] NT speichern/updaten, RT Playing ignorieren, Duplikatserkennung semantisch gleicher Instanzen
+      1. [ ] NT speichern/updaten, RT Playing mit speichern/updaten **geht das überhaupt?**
 
+   1. [ ] NT SELECT
+      1. [x] NT laden, RT Playing ignorieren
+      1. [ ] NT laden, RT Playing mit laden, ohne Played-By Beziehung in Realanwendung
+      1. [ ] NT laden, RT Playing mit laden, mit Played-By Beziehung in Realanwendung
 
-
-## Lösungsansatz
-
-Komplett eigen ist blöd, rad neu erfinden ist nicht ratsam.  
-100% hibernate nutzen ist unrealistisch, da die Klassen der späteren Anwendung im Vorfeld nicht
-bekannt sind und man daher dafür keine Entitäten entwerfen kann. Und den Entwickler zwingen,
-Annotationen für Entitäten, ID's, Fremdschlüssel, ... selbst zu schreiben, reißt ihn aus der
-rollenbasierten Welt zu sehr heraus. Zudem würde der Entwickler dann in seiner rollenbasierten
-Welt plötzlich in relationales Denken verfallen.  
-Daher ein Hybrid als Lösung:  
-Hibernate mit einer relationalen Datenbank nutzen, um vorher festgelegte Grundstrukturen abzubilden.  
-Es gibt für alle wichtigen Bereiche der rollenbasierten Welt angepasste und gut durchdachte Mappings
-von Entitäten. So gibt es eine Entität, die NTs abbilden kann, eine andere für CTs und RTs, welche
-wiederum mit den NTs verknüpft seien können usw.  
-Alles so variabel, dass man später mit richtiger Serialisierung alles ablegen kann.  
--> siehe Klassendiagramm  
-Das UML Klassendiagramm beinhaltet auch die vier Ansätze für den Projektaufbau. Der letzte ist der
-neuste und umgesetzte Ansatz.
+   1. [ ] NT DELETE
+      1. [x] NT löschen, RT Playing ignorieren
+      1. [ ] NT löschen, RT Playing mit löschen
 
 
 
-## Entscheidungen der Konzeption
+1. [ ] RT
 
-- Allgemein  
-  Objekte werden, da die Klassen im Vorfeld unbekannt sind, auf Entitäten gemäß dem entworfenen
-  Klassendiagramm zerlegt. Mittels Reflection also eigene Serializer programmiert.
-- INSERT  
-  Wenn ein Objekt gespeichert wird, also ein INSERT ausgeführt wird, es danach verändert wird und
-  erneut gespeichert wird, so ist die zweite Operation auch ein INSERT und nicht, wie
-  zu erwarten, ein UPDATE. In relationalen Datenbanken wird dies automatisch durch die ID gelöst.
-  Ist keine ID vorhanden, existiert die Entity noch nicht in der Datenbank und es muss ein INSERT
-  ausgeführt werden. Hat die Entity bereits eine ID, so wird diese für ein UPDATE genutzt, um die
-  Entity eindeutig zuweisen zu können.  
-  Lösung: HashCode des zu speichernden Objektes ermitteln und diesen als eindeutigen Identifikator
-  nutzen. Bei jedem Speichern also überprüfen, ob dieser HashCode schon vorhanden ist und wenn ja,
-  die Operation als UPDATE betrachten.
-- SELECT  
-  Eigentlich wollte ich hier den Ansatz gehen, dass der ausgeführte SELECT ein Objekt
-  der gewünschten Klasse in Scala erzeugt und zurück gibt. Jedoch muss mein Skript wissen,
-  von welcher Klasse das Objekt sein soll, das erstellt werden soll. Denn dies wird ja hoch
-  variabel sein und kann aktuell noch nicht festgelegt werden.  
-  Daher war eine mögliche Lösung, ein Dummy Objekt zu erzeugen, nur um davon die Klasse per
-  `getClass()` zu bekommen und das Objekt selbst danach wegzuwerfen:
-  ```scala
-  val hansSelect = Database.getInstance().selectNt((new Person("Max")).getClass, "name", "Hans Jürgen").asInstanceOf[Person]
-  ```
-  Hier muss das Ergebnis auch noch auf die korrekte Klasse gecastet werden und auch in eine
-  weitere Instanz der Klasse gespeichert werden. Und da das nicht nur umständlich ist, sondern
-  Java auch nicht bekannt für gutes Ressourcenmanagement des Arbeitsspeichers ist, habe ich mich
-  für folgenden dritten und auch letzten Ansatz entschieden:
-  ```scala
-  var hansSelect = new Person("Max")
-  Database.getInstance().selectNt(hansSelect, "name", "Hans Jürgen")
-  ```
-  Hier wird nun eine Instanz der Klasse erzeugt, welche dann aber mit den abzufragenden
-  Werten aus der Datenbank komplett überschrieben wird. Die Person heißt hier zwar kurz `Max`,
-  aber da alle Klassenvariablen in der nächsten Zeile überschrieben werden, heißt er danach
-  dann wieder richtig und hat auch seine alten bekannten Werte.  
-  Der Finale Ansatz sieht wie folgt aus:
-  ```scala
-  var hansSelectList: util.List[UniversityExample.Person] = Database.nt.select(
-          classOf[UniversityExample.Person], "name", "Hans Jürgen").asInstanceOf[util.List[UniversityExample.Person]]
-  ```
-  Er ist zwar sehr lang, aber dafür clean, nachvollziehbar und hält sich an die Grundlagen, die
-  man aus anderen Persistierungsframeworks gewohnt ist. Vor allem muss man kein Pseusoobjekt
-  erstellen, ehe man eine Abfrage starten kann. Man muss jedoch die Klasse mit übergeben, die man
-  durchsuchen möchte.  
-  Ebenso ist dieser Ansatz in der Lage, mehr als ein Objekt zurück zu geben, denn es ist nirgends
-  gesagt, dass es nur eine Person mit dem Suchkriterium geben wird.  
-  Ob dann etwas gefunden wurde und wenn ja wie viel kann der Entwickler prüfen, in dem er die Länge
-  der zurückgegebenen Liste überprüft.
-- Damit ein Objekt eindeutig in der Datenbank zugeordnet werden kann, muss jedes Objekt in dem
-  Projekt der rollenbasierten Welt einen unique identifier besitzen, wie es in relationalen Ansätzen
-  der Fall ist. Solch eine eindeutige Zuordnung von (UU)ID kann in Java leider nicht realisiert
-  werden, in dem einem bereits initialisieren Objekt nachträglich eine Variable untergeschoben wird,
-  ohne die zugrundeliegende Klasse zu modifizieren. Daher stehen folgende möglichen Ansätze im Raum:
-  1. Das persistierende Framework hält eine Zuordnung im Arbeitsspeicher, welcher zur Laufzeit
-     den hash Wert aus Java immer mit der Datenbank abgleicht und aktuell hält.  
-     Vorteil: weniter Arbeit für den späteren Entwickler  
-     Nachteil: schlechte Laufzeit und ggf später Probleme bei Clonvorgängen oder
-     Überschreiben von Objekten. Allgemein immer dann, wenn ein neuer Hash Wert von
-     Java zugewiesen wird. Kaum Kontrolle für den späteren Entwickler.
-  1. Jede Klasse in Scroll, die später persistiert werden soll, muss von einer Metaklasse erben, welche
-     genau diese Variable für die UUID bereitstellt.  
-     Vorteil: gute Laufzeit  
-     Nachteil: Der Entwickler muss immer vererben und eventuelle Vererbungsketten entstehen
-  1. Man könnte statt Vererbung eine Annotation nutzen, die dieses Attribut für jede zu
-     persistierende Klasse bereitstellt.    
-     Vorteil: gute Laufzeit  
-     Nachteil: Der spätere Entwickler muss stets an die Annotation für alle Klassen denken, die
-     er persistieren möchte. Zudem sehr komplex in der Entwicklung, siehe Projekt `Lombok`, den `AST`
-     zu manipulieren ist nicht ohne.
-- Die UUID wird durch vererbung vergeben. Daher müssen NT, RT und CT im SCROLL ab jetzt von der
-  entsprechenden Metaklasse erben. (Siehe Codebeispiel)
-- Wird bei einer Abfrage (=`select`) kein Eintrag gefunden, so wird kein Fehler geworfen, sondern
-  das zugrundeliegende Objekt hat `null` in der `uuid_`. So kann man darauf abfragen und auf diesem
-  Weg prüfen, ob ein Ergebnis gefunden wurde.
-- Spielrelationen werden immer mit dem persistieren der RT mit gespeichert. NT & CT können einfach so
-  gespeichert werden, aber bei dem speichern eines RT werden gezwungenermaßen auch die aktuell existierenden
-  `played by` mit gespeichert.  
-  Ebenso muss bei dem Speichern eines RT auch der CT mit persistiert oder bereits persistiert worden sein,
-  in dem sich der zu speichernde RT befindet. Auch hier geht es nicht ohne.
-- Um einen NT, RT und CT auseinander halten zu können, kann auf die Vererbte Klasse geprüft werden.
-  Denn da alle drei von unterschiedlichen Metaklassen erben müssen, kann man sehr schön mittels
-  ```java
-  MetaPersistenceNt.class.isAssignableFrom(someObject.getClass()) // NT
-  MetaPersistenceRt.class.isAssignableFrom(someObject.getClass()) // RT
-  MetaPersistenceCt.class.isAssignableFrom(someObject.getClass()) // CT
-  ```
-  prüfen, von welcher Metaklasse das übergebene Objekt erbt und um was für eine Entity es sich
-  dadurch handelt.
+   1. [x] RT INSERT / UPDATE
+      1. [x] RT speichern/updaten, NT/CT Player ignorieren, keine Duplikatserkennung semantisch gleicher Instanzen
+      1. [x] RT speichern/updaten, NT/CT Player ignorieren, Duplikatserkennung semantisch gleicher Instanzen
+      1. [x] RT speichern/updaten, NT/CT Player mit speichern/updaten
+      1. [x] RT speichern/updaten, enthaltener CT mit speichern/updaten
+
+   1. [ ] RT SELECT
+      1. [x] RT laden, NT/CT Playing ignorieren
+      1. [x] RT laden, NT/CT Playing mit laden, ohne Played-By Beziehung in Realanwendung
+      1. [ ] RT laden, NT/CT Playing mit laden, mit Played-By Beziehung in Realanwendung
+
+   1. [ ] RT DELETE
+      1. [x] RT löschen, NT/CT Playing ignorieren
+      1. [ ] RT löschen, NT/CT Playing mit löschen
 
 
 
-## große Hürden und Probleme
+1. [ ] CT
 
-- Klassenvariablen, die auf `private` stehen, sowohl ermitteln als auch setzen
-- Da bei einem SELECT ein neues Objekt erstellt wird, dessen Klassenvariablen dann überschrieben
-  werden, hat es danach einen anderen HashCode, als das original gespeicherte Objekt. Würde man
-  also ein Objekt speichern, es dann laden, verändern und erneut speichern, so wäre dies kein
-  Update, sondern ein neuer INSERT.  
-  Lösung: HashCode hässlich manuell überschreiben und somit aus dem INSERT in dem Szenario
-  ein gewünschtes UPDATE machen
-- In dem Projekt wird Hibernate verwendet, und Ansätze von Spring, aber leider nicht alles aus der
-  Welt von Spring, da in meinem Persistierungs-Ansatz kein Einfluss auf die `main` des späteren
-  Programms nehmen kann. Daher läuft die gesamte Anwendung in keinem vollsätndigen Spring
-  Kontext und viele Möglichkeiten fallen weg: Kein Autowired, keine Repositories, keine richtigen
-  Beans, ...  
-  Also leider alles sehr stark limitiert in den Möglichkeiten. So sind manche Lösungen sehr
-  schwerfällig und oft nicht unbedingt schön in der Programmierung.  
-  Das nervigste: Es geht nur HQL als Abfragesprache, keine Spring oder JPA Repositories
-- Wie persistiert man einen RT, der einen anderen RT spielt, der wiederum den ersten RT spielt?  
-  Sehr nerviges gefriemel mit vielen Fallunterscheidungen, aber natürlich möglich.
+   1. [ ] CT INSERT / UPDATE
+      1. [x] CT speichern/updaten, RT Playing ignorieren, keine Duplikatserkennung semantisch gleicher Instanzen
+      1. [x] CT speichern/updaten, RT Playing ignorieren, Duplikatserkennung semantisch gleicher Instanzen
+      1. [ ] CT speichern/updaten, RT Playing mit speichern/updaten
+      1. [x] CT speichern/updaten, enthaltene RT mit speichern/updaten, NT/CT Player dieser RT nicht mit speichern/updaten
+      1. [x] CT speichern/updaten, enthaltene RT mit speichern/updaten, NT/CT Player dieser RT mit speichern/updaten
+
+   1. [ ] CT SELECT
+      1. [ ] CT laden, RT Playing ignorieren
+      1. [ ] CT laden, RT Playing mit laden, ohne Played-By Beziehung in Realanwendung
+      1. [ ] CT laden, RT Playing mit laden, mit Played-By Beziehung in Realanwendung
+      1. [ ] CT laden, enthaltene RT mit laden
+
+   1. [ ] CT DELETE
+      1. [x] CT löschen, RT Playing ignorieren
+      1. [ ] CT löschen, RT Playing mit löschen
+      1. [ ] CT löschen, enthaltene RT mit löschen
+  
+   1. [ ] CT Großflächige Operationen
+      1. [x] CT speichern/updaten, dabei alles persistieren, an das man dabei irgendwie ran kommt (möglichst nahe am "alles speichern")
+      1. [ ] CT laden, alles herausziehen, an das man dabei irgendwie ran kommt (möglichst nahe am "alles laden")
 
 
-
-## UML Klassendiagramm
-
-Das UML Klassendiagramm liegt dem Projekt im Ordner `/uml` bei.  
-Es liegt als XML (source Datei) und als PDF (export) vor.  
-Die Nummer am Ende der Dateien ist die Version des Exports.  
-Erstellt wurde das Diagramm mit dem Tool https://www.draw.io/  
-In den Dokumenten liegen auch die vier Hauptansätze vor. Der letzte ist der neuste und
-umgesetzte Ansatz.
