@@ -33,7 +33,7 @@ public class _CT {
      * @param ctObj Der zu speichernde CT
      * @throws Exception
      */
-    public void createOrUpdate(Object ctObj) throws Exception {
+    public void createOrUpdate(MetaPersistenceCt ctObj) throws Exception {
         this.createOrUpdate(ctObj, false, false);
     }
 
@@ -60,12 +60,12 @@ public class _CT {
      *                                                 `createOrUpdate` ausgeführt; `false`=nicht
      * @throws Exception
      */
-    public void createOrUpdate(Object ctObj, boolean createOrUpdateAllContainingRT, boolean createOrUpdateAllPlayersFromContainingRT) throws Exception {
+    public void createOrUpdate(MetaPersistenceCt ctObj, boolean createOrUpdateAllContainingRT, boolean createOrUpdateAllPlayersFromContainingRT) throws Exception {
 //        Serializer.printAllFields(ctObj);
 
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(ctObj)))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(ctObj)))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -140,9 +140,9 @@ public class _CT {
             if(createOrUpdateAllPlayersFromContainingRT){
                 for(Object o : rigidTypes){
                     if(MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(o))) // rigiden Typen, genauer: CT
-                        Database.ct().createOrUpdate(o, false, false);
+                        Database.ct().createOrUpdate((MetaPersistenceCt) o, false, false);
                     else if(MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(o))) // rigiden Typen, genauer: NT
-                        Database.nt().createOrUpdate(o);
+                        Database.nt().createOrUpdate((MetaPersistenceNt) o);
                     else // nichts, was wir erwarten würden
                         throw new Exception("Unerwartete Vererbung (rigide).");
                 }
@@ -152,7 +152,7 @@ public class _CT {
             if(createOrUpdateAllContainingRT){
                 for(Object o : rtTypes){
                     if(MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(o))) // rigiden Typen, genauer: CT
-                        Database.rt().createOrUpdate(o, false, false);
+                        Database.rt().createOrUpdate((MetaPersistenceRt) o, false, false);
                     else // nichts, was wir erwarten würden
                         throw new Exception("Unerwartete Vererbung (role).");
                 }
@@ -190,7 +190,7 @@ public class _CT {
      * @param ctObj Der zu speichernde CT, welcher als Ausgangspunkt genutzt wird
      * @throws Exception
      */
-    public void createOrUpdateRecursive(Object ctObj) throws Exception {
+    public void createOrUpdateRecursive(MetaPersistenceCt ctObj) throws Exception {
         // Cachen aller Hash Werte, um sich zu merken, was man schon persistiert hat
         Set<Integer> alreadySaved_hashCodes = new HashSet<>(); //TODO
 
@@ -227,11 +227,11 @@ public class _CT {
                         ctToSave.put(o.hashCode(), o);
                 }else if(MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(o))) { // rigiden Typen, genauer: NT
                     alreadySaved_hashCodes.add(o.hashCode());
-                    Database.nt().createOrUpdate(o);
+                    Database.nt().createOrUpdate((MetaPersistenceNt) o);
                 }else if(MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(o))) { // Spieler, also RT
                     // RT selbst speichern
                     alreadySaved_hashCodes.add(o.hashCode());
-                    Database.rt().createOrUpdate(o, false, false);
+                    Database.rt().createOrUpdate((MetaPersistenceRt) o, false, false);
 
                     // alle rigiden Spieler des RT ermitteln
                     Collection allPlayers = JavaConverters.asJavaCollection(ctCurrent_entity.getRolesFromHash(o.hashCode()));
@@ -242,7 +242,7 @@ public class _CT {
 
                         if(MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(player))) { // NT
                             alreadySaved_hashCodes.add(o.hashCode());
-                            Database.nt().createOrUpdate(player);
+                            Database.nt().createOrUpdate((MetaPersistenceNt) player);
                         }else if(MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(player))) { // CT
                             // Wurde oder wird dieser CT durchgegangen?
                             if(!alreadySaved_hashCodes.contains(o.hashCode()) && !ctToSave.containsKey(o.hashCode())) // noch nie gesehen
@@ -267,10 +267,10 @@ public class _CT {
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
      * @throws Exception
      */
-    public boolean delete(Object ctObj) throws Exception {
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(ctObj)))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+    public boolean delete(MetaPersistenceCt ctObj) throws Exception {
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(ctObj)))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -296,6 +296,62 @@ public class _CT {
 
         // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
         return false;
+    }
+
+    /**
+     * Selektiert CTs.
+     *
+     * @param ctObjClass Die Klasse des CT, in welchem die Instanz gesucht werden soll
+     * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
+     * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
+     * @return List<?> Eine Liste der CTs die auf die Bedingung zutreffen
+     * @throws Exception
+     */
+    public List<?> select(Class ctObjClass, String variableName, Object value) throws Exception {
+        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+        if(!MetaPersistenceCt.class.isAssignableFrom(ctObjClass))
+            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
+        // Session und Transaktion ermitteln bzw. initialisieren
+        Session session = SessionFactory.getNewOrOpenSession();
+        SessionFactory.openTransaction();
+
+        // Klassen-Spezifische Informationen ermitteln
+        BasicClassInformation classInfos = new BasicClassInformation(ctObjClass);
+
+        // Entität aus der Datenbank ermitteln
+//        List<CT> allCt = this.ctRepository.findAllByHash(hash);
+        Query query = session.createQuery("select ct from CT as ct inner join ct.variables as variables " +
+                "where ct.classPackage = :classPackage and variables.name = :name and variables.value = :value ");
+        query.setParameter("classPackage", classInfos.classPackage);
+        query.setParameter("name", variableName);
+        query.setParameter("value", value);
+        List<?> allCTs = query.list();
+
+        // Rückgabe Liste initialisieren
+//        List<?> results = new ArrayList<Object>();
+//        ArrayList<?> results = ListHelper.listOf((Class<?>) ctObjClass);
+        ArrayList<Object> results = ListHelper.listOf(ctObjClass);
+
+        // Über alle gefundenen Entitäten iterieren
+        if(allCTs.size() > 0){
+            for(CT ct : (List<CT>) allCTs){
+//                ct = (CT) session.merge(ct); // re-attach
+
+                // Aus der Entität aus der Datenbank eine Instanz der eigentlich echten Anwendung machen
+                Object newObj = Serializer.getInstanceOfEntity(ct, ctObjClass);
+
+                // Das fertige neue Objekt der Rückgabe Liste hinzufügen
+                results.add(newObj);
+            }
+        }
+
+        // Transaktion und Session schließen bzw. committen
+        SessionFactory.closeTransaction();
+//        session.close();
+
+        // Rückgabe der Ergebnisse
+        return results;
     }
 
 }

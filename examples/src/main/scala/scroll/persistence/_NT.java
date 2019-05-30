@@ -33,12 +33,12 @@ public class _NT {
      * @param ntObj Der zu speichernde NT
      * @throws Exception
      */
-    public void createOrUpdate(Object ntObj) throws Exception {
+    public void createOrUpdate(MetaPersistenceNt ntObj) throws Exception {
 //        Serializer.printAllFields(ntObj);
 
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -103,10 +103,10 @@ public class _NT {
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
      * @throws Exception
      */
-    public boolean delete(Object ntObj) throws Exception {
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+    public boolean delete(MetaPersistenceNt ntObj) throws Exception {
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(ntObj)))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -249,11 +249,6 @@ public class _NT {
         query.setParameter("name", variableName);
         query.setParameter("value", value);
         List<?> allNTs = query.list();
-
-        System.out.println("classPackage: " + classInfos.classPackage);
-        System.out.println("name: " + variableName);
-        System.out.println("value: " + value);
-        System.out.println("größe: " + allNTs.size());
 
         // Rückgabe Liste initialisieren
 //        List<?> results = new ArrayList<Object>();

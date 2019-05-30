@@ -32,7 +32,7 @@ public class _RT {
      * @param rtObj Der zu speichernde RT
      * @throws Exception
      */
-    public void createOrUpdate(Object rtObj) throws Exception {
+    public void createOrUpdate(MetaPersistenceRt rtObj) throws Exception {
         this.createOrUpdate(rtObj, false, false);
     }
 
@@ -57,12 +57,12 @@ public class _RT {
      *                                   Compartment selbst, keine weiteren enthaltenen RTs; `false`=nicht
      * @throws Exception
      */
-    public void createOrUpdate(Object rtObj, boolean createOrUpdatePlayers, boolean createOrUpdateContainingCT) throws Exception {
+    public void createOrUpdate(MetaPersistenceRt rtObj, boolean createOrUpdatePlayers, boolean createOrUpdateContainingCT) throws Exception {
 //        Serializer.printAllFields(rtObj);
 
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rtObj)))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rtObj)))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -99,11 +99,11 @@ public class _RT {
             for(Object player : allPlayers){
                 // Der Spieler kann ein NT, CT oder RT sein, daher muss unterschieden werden
                 if(MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(player))) // NT
-                    Database.nt().createOrUpdate(player);
+                    Database.nt().createOrUpdate((MetaPersistenceNt) player);
                 else if(MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(player))) // CT
-                    Database.ct().createOrUpdate(player);
+                    Database.ct().createOrUpdate((MetaPersistenceCt) player);
                 else if(MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(player))) // RT
-                    Database.rt().createOrUpdate(player);
+                    Database.rt().createOrUpdate((MetaPersistenceRt) player);
                 else // nichts
                     throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
             }
@@ -183,10 +183,10 @@ public class _RT {
      * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
      * @throws Exception
      */
-    public boolean delete(Object rtObj) throws Exception {
-        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
-        if(!MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rtObj)))
-            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+    public boolean delete(MetaPersistenceRt rtObj) throws Exception {
+//        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
+//        if(!MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rtObj)))
+//            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -222,13 +222,19 @@ public class _RT {
      * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
      * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
      * @param alsoSelectPlayers `true`=Selektiert auch die Spieler welche mittels Played-By mit dem selektierten RT spielen; `false`=nicht
+     * @param containingCt steht `alsoSelectPlayers` auf `true`, so muss dieser Wert ausgefüllt sein
      * @return List<ReturnRT> Eine Liste der RTs die auf die Bedingung zutreffen
      * @throws Exception
      */
-    public List<ReturnRT> select(Class rtObjClass, String variableName, Object value, boolean alsoSelectPlayers) throws Exception {
+    public List<ReturnRT> select(Class rtObjClass, String variableName, Object value, boolean alsoSelectPlayers,
+                                 MetaPersistenceCt containingCt) throws Exception {
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
         if(!MetaPersistenceRt.class.isAssignableFrom(rtObjClass))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
+
+        // steht `alsoSelectPlayers` auf `true`, so muss `containingCt` ausgefüllt sein
+        if(alsoSelectPlayers && containingCt == null)
+            throw new Exception("steht `alsoSelectPlayers` auf `true`, so muss `containingCt` ausgefüllt sein");
 
         // Session und Transaktion ermitteln bzw. initialisieren
         Session session = SessionFactory.getNewOrOpenSession();
@@ -267,15 +273,21 @@ public class _RT {
                 if(alsoSelectPlayers){
                     for(Entity e : rt.playedBy){
 
+                        // Anwendungs-Objekt erzeugen (Realanwendung)
+                        Object obj = Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage));
+
                         // Der Spieler kann ein NT, CT oder RT sein, daher muss unterschieden werden
                         if(e instanceof NT) // NT
-                            tmp.players.add(Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage)));
+                            tmp.players.add(obj);
                         else if(e instanceof CT) // CT
-                            tmp.players.add(Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage)));
+                            tmp.players.add(obj);
                         else if(e instanceof RT) // RT
                             throw new Exception("Ein RT darf keinen RT spielen. Nur NT oder CT dürfen RT spielen.");
                         else // nichts
                             throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
+
+                        // In dem CT, in dem sich der RT befindet, auch die played By Beziehungen setzen
+//                        containingCt.newPlayer(obj, classInfos.class_).play(tmp.rt); //TODO
                     }
                 }
 
@@ -292,7 +304,7 @@ public class _RT {
         return results;
     }
 
-    public void test(Object rtObj) throws NoSuchFieldException, IllegalAccessException {
+    public void test(MetaPersistenceRt rtObj) throws NoSuchFieldException, IllegalAccessException {
         // Das Compartment ermitteln, das um den RT liegt
         Class<?> c = BasicClassInformation.getClass(rtObj);
         Field f = c.getDeclaredField("$outer");

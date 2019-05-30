@@ -16,10 +16,10 @@ object UniversityExample {
 
 //  class University extends Compartment {
   class University extends MetaPersistenceCt {
-    var country = "Deutschland"
+    var country: String = _
 
     class Student extends MetaPersistenceRt {
-      var matNr = 0
+      var matNr: Int = _
       def talk(): Unit = {
         println("----- I am a student")
       }
@@ -50,7 +50,9 @@ object UniversityExample {
     println("===== START =====")
 
     val uni = new University {
-      val uwe = new Person("Uwe Müller")
+
+      // Eigene Klassenvariablen der Univresität
+      this.country = "Deutschland"
 
 
 
@@ -115,7 +117,7 @@ object UniversityExample {
 
       // select
       var studentHansSelectList: util.List[ReturnRT] = Database.rt.select(
-        classOf[Student], "matNr", 6789, true) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
+        classOf[Student], "matNr", 6789, true, this) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
       println("----- Anzahl der gefundenen RTs: " + studentHansSelectList.size())
 
       // update 2: Entitäten, die abgefragt wurden, müssen immer noch wie das originale Objekt behandelt werden und dürfen kein INSERT triggern, sondern ein UPDATE
@@ -125,7 +127,7 @@ object UniversityExample {
 
       // select 2
       var studentHansSelectList2: util.List[ReturnRT] = Database.rt.select(
-        classOf[Student], "matNr", 6789, true) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
+        classOf[Student], "matNr", 6789, true, this) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
       println("----- Anzahl der gefundenen RTs 2: " + studentHansSelectList2.size())
       println("----- Anzahl der gefundenen RTs 2 - Spieler: " + studentHansSelectList2.get(0).players.size())
       println("----- Anzahl der gefundenen RTs 2 - Name des Spielers: " + studentHansSelectList2.get(0).players.get(0).asInstanceOf[Person].name)
@@ -138,7 +140,7 @@ object UniversityExample {
 
       // select 3
       var studentHansSelectList3: util.List[ReturnRT] = Database.rt.select(
-        classOf[Student], "matNr", 6789, true) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
+        classOf[Student], "matNr", 6789, true, this) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
       println("----- Anzahl der gefundenen RTs 3: " + studentHansSelectList3.size())
 
       println("xxxxxxxxxxxxxxxxxxxxxxx 2")
@@ -163,18 +165,18 @@ object UniversityExample {
 
 
 
-
-
-
-
-
-
-
       // === CT
+      // Überwiegend analog zu NT bzw. RT playing NT. Hier nur mit CT statt NT (beides aber rigide Typen)
       println("----- CT")
 
       // insert
+      this.country = "Deutschland"
       Database.ct.createOrUpdate(this)
+
+      // delete
+//      Database.ct.delete(this) // geht hier nicht, da im CT noch RTs enthalten sind. Diese müssten zuerst gelöscht werden
+
+
 
 
 
