@@ -4,6 +4,7 @@ import org.hibernate.Session;
 import org.hibernate.query.Query;
 //import scroll.internal.IPlayer;
 import scala.collection.JavaConverters;
+import scala.reflect.ClassTag;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
@@ -287,7 +288,10 @@ public class _RT {
                             throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
 
                         // In dem CT, in dem sich der RT befindet, auch die played By Beziehungen setzen
-//                        containingCt.newPlayer(obj, classInfos.class_).play(tmp.rt); //TODO
+                        //ClassTag<LocalUser> tag = scala.reflect.ClassTag$.MODULE$.apply(LocalUser.class);
+                        ClassTag classTagRigid = scala.reflect.ClassTag$.MODULE$.apply(Class.forName(e.classPackage));
+                        ClassTag classTagRt = scala.reflect.ClassTag$.MODULE$.apply(rtObjClass);
+                        containingCt.addPlaysRelation(obj, tmp.rt, classTagRigid, classTagRt);
                     }
                 }
 

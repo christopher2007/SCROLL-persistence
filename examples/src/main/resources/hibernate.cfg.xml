@@ -8,8 +8,6 @@
     <session-factory>
 
         <!-- Database connection settings -->
-        <!--<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>-->
-        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
         <!--<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/scroll</property>-->
         <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/scroll?serverTimezone=UTC</property>
         <property name="hibernate.connection.username">scroll</property>
@@ -18,6 +16,10 @@
 
         <!-- JDBC connection pool (use the built-in) -->
         <!--<property name="hibernate.connection.pool_size">1</property>-->
+
+        <!-- Treiber Klasse -->
+        <!--<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>-->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
 
         <!-- SQL dialect -->
         <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
@@ -30,7 +32,8 @@
         <!--<property name="hibernate.show_sql">false</property>-->
 
         <!-- what to do with the database schema on startup? -->
-        <property name="hibernate.hbm2ddl.auto">create</property> <!-- Drop and re-create the database schema on startup -->
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        <!--<property name="hibernate.hbm2ddl.auto">create</property> &lt;!&ndash; Drop and re-create the database schema on startup &ndash;&gt;-->
         <!--<property name="hibernate.hbm2ddl.auto">update</property> &lt;!&ndash; update database schema on startup &ndash;&gt;-->
         <!--<property name="hibernate.hbm2ddl.auto">validate</property> &lt;!&ndash; validates the database schema on startup, no changes &ndash;&gt;-->
 

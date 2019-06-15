@@ -57,11 +57,10 @@ möglich. Mehr dazu in der Wiki unter `Grundlage` -> `Grundregel`
       1. [x] RT speichern/updaten, NT/CT Player mit speichern/updaten
       1. [x] RT speichern/updaten, enthaltener CT mit speichern/updaten
 
-   1. [ ] RT SELECT
+   1. [x] RT SELECT
       1. [x] RT laden, NT/CT Spielpartner ignorieren
       1. [x] RT laden, NT/CT Spielpartner mit laden, ohne Played-By Beziehung in Realanwendung
-      1. [ ] RT laden, NT/CT Spielpartner mit laden, mit Played-By Beziehung in Realanwendung  
-         **fehlt nur noch _RT.java:290**
+      1. [x] RT laden, NT/CT Spielpartner mit laden, mit Played-By Beziehung in Realanwendung
 
    1. [ ] RT DELETE
       1. [x] RT löschen, Played-By Beziehungen ignorieren, NT/CT Spielpartner ignorieren
