@@ -124,6 +124,15 @@ einzubinden funktioniert leider aufgrund der Erweiterung in der Compartment Klas
 Die Hibernate Konfiguration ist zu finden unter:  
 `/examples/src/main/resources/hibernate.cfg.xml`  
 
+### Datenbank Typ
+
+Standardmäßig wird MySQL verwendet. Unterstützt wird jedoch jeder relationale Datenbank Typ, der auch von
+Hibernate unterstützt wird.  
+Eine Anleitung für das Verwenden von PostgreSQL statt MySQL befindet sich hier:  
+[PostgreSQL statt MySQL](PostgreSQL-statt-MySQL)  
+Dieser Wiki Eintrag ist auch ein guter Leitfaden für die notwendigen Änderungen auf Datenbanksysteme außerhalb
+von MySQL und PostgreSQL, da hier alles aufgezeigt wird, was es anzupassen gilt.
+
 ### Datenbank Verbindungsdaten
 
 In der Config dringend die Datenbank Verbindungsdaten des aktuellen Systems eintragen:  
