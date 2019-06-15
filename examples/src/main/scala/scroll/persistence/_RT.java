@@ -222,7 +222,7 @@ public class _RT {
      * @param rtObjClass Die Klasse des RT, in welchem die Instanz gesucht werden soll
      * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
      * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
-     * @param alsoSelectPlayers `true`=Selektiert auch die Spieler welche mittels Played-By mit dem selektierten RT spielen; `false`=nicht
+     * @param alsoSelectPlayers `true`=Selektiert auch die Spieler welche mittels Played-By mit dem selektierten RT verbunden sind; `false`=nicht
      * @param containingCt steht `alsoSelectPlayers` auf `true`, so muss dieser Wert ausgefüllt sein
      * @return List<ReturnRT> Eine Liste der RTs die auf die Bedingung zutreffen
      * @throws Exception
@@ -288,10 +288,7 @@ public class _RT {
                             throw new Exception("Der Player scheint kein NT, CT oder RT zu sein.");
 
                         // In dem CT, in dem sich der RT befindet, auch die played By Beziehungen setzen
-                        //ClassTag<LocalUser> tag = scala.reflect.ClassTag$.MODULE$.apply(LocalUser.class);
-                        ClassTag classTagRigid = scala.reflect.ClassTag$.MODULE$.apply(Class.forName(e.classPackage));
-                        ClassTag classTagRt = scala.reflect.ClassTag$.MODULE$.apply(rtObjClass);
-                        containingCt.addPlaysRelation(obj, tmp.rt, classTagRigid, classTagRt);
+                        _CT.addPlayedByInCT(containingCt, obj, tmp.rt);
                     }
                 }
 

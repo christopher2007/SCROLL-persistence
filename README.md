@@ -101,7 +101,9 @@ hinter den entsprechenden Einträgen steht:
           der Konsistenz wegen hier im persistence Modell auch nicht. Außerdem eine Kombination aus anderen Features.**
       1. [ ] ~~CT laden, RT Spielpartner mit laden, mit Played-By Beziehung in Realanwendung~~  
          **Analog zum vorherigen Punkt**
-      1. [x] CT laden, enthaltene RT mit laden
+      1. [ ] ~~CT laden, enthaltene RTs mit laden, Spielpartner dieser RTs ignorieren~~  
+         **SCROLL selbst ermöglicht es nicht, RTs ohne Spielpartner in einen CT einzufügen, daher geht das leider nicht**
+      1. [x] CT laden, enthaltene RTs mit laden, Spielpartner dieser RTs mit laden
 
    1. [ ] CT DELETE
       1. [x] CT löschen, RT Played-By Beziehungen ignorieren, RT Spielpartner ignorieren

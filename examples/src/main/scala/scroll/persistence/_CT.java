@@ -2,6 +2,7 @@ package scroll.persistence;
 
 import org.hibernate.Session;
 import org.hibernate.query.Query;
+import scala.reflect.ClassTag;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
@@ -304,10 +305,14 @@ public class _CT {
      * @param ctObjClass Die Klasse des CT, in welchem die Instanz gesucht werden soll
      * @param variableName Nach diesem Attribut wird in der Datenbank gesucht (key)
      * @param value Der Wert des Attributes, nach dem gesucht werden soll (value)
+     * @param alsoSelectContainingRTs `true`=in dem CT enthaltene RTs werden mit geladen; `false`=nicht
+     * @param alsoSelectPlayersFromContainingRTs `true`=Selektiert auch die Spieler welche mittels Played-By mit den in dem
+     *                                          CT enthaltenen RT verbunden sind; `false`=nicht
      * @return List<?> Eine Liste der CTs die auf die Bedingung zutreffen
      * @throws Exception
      */
-    public List<?> select(Class ctObjClass, String variableName, Object value) throws Exception {
+    public List<?> select(Class ctObjClass, String variableName, Object value, boolean alsoSelectContainingRTs,
+                          boolean alsoSelectPlayersFromContainingRTs) throws Exception {
         // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
         if(!MetaPersistenceCt.class.isAssignableFrom(ctObjClass))
             throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
@@ -341,6 +346,26 @@ public class _CT {
                 // Aus der Entität aus der Datenbank eine Instanz der eigentlich echten Anwendung machen
                 Object newObj = Serializer.getInstanceOfEntity(ct, ctObjClass);
 
+                // Sollen in diesem CT auch die enthaltenen RT ermittelt werden?
+                if(alsoSelectContainingRTs){
+                    for(RT rt : ct.containing){
+                        // rigide Spielpartner mit ermitteln?
+                        if(alsoSelectPlayersFromContainingRTs){
+                            for(Entity e : rt.playedBy){
+                                // Anwendungs-Objekt erzeugen (Realanwendung)
+                                Object rigid = Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage));
+
+                                // In dem CT, in dem sich der RT befindet, auch die played By Beziehungen setzen
+                                _CT.addPlayedByInCT((MetaPersistenceCt) newObj, rigid, rt);
+                            }
+                        }else{
+                            //TODO
+                            throw new Exception("RT ohne Spielpartner können nicht in einen CT hinzugefügt werden, hier fehlt in SCROLL selbst " +
+                                    "eine entsprechende Möglichkeit.");
+                        }
+                    }
+                }
+
                 // Das fertige neue Objekt der Rückgabe Liste hinzufügen
                 results.add(newObj);
             }
@@ -352,6 +377,25 @@ public class _CT {
 
         // Rückgabe der Ergebnisse
         return results;
+    }
+
+    /**
+     * Erstellt in einem übergebenen CT eine neue Played-By Beziehung zwischen einem Spieler und einem RT.
+     *
+     * @param ct In diesem CT soll die neue Played-By Beziehung erzeugt werden.
+     * @param rigid Dies ist der Spieler, der den RT spielen soll.
+     * @param rt Dies ist der RT, der vom Spieler gespielt werden soll.
+     */
+    protected static void addPlayedByInCT(MetaPersistenceCt ct, Object rigid, Object rt) {
+        BasicClassInformation classInfoRigid = new BasicClassInformation(rigid);
+        BasicClassInformation classInfoRt = new BasicClassInformation(rt);
+
+        //ClassTag<LocalUser> tag = scala.reflect.ClassTag$.MODULE$.apply(LocalUser.class);
+
+        ClassTag classTagRigid = scala.reflect.ClassTag$.MODULE$.apply(classInfoRigid.class_);
+        ClassTag classTagRt = scala.reflect.ClassTag$.MODULE$.apply(classInfoRt.class_);
+
+        ct.addPlaysRelation(rigid, rt, classTagRigid, classTagRt);
     }
 
 }
