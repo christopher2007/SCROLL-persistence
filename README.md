@@ -105,17 +105,16 @@ hinter den entsprechenden Einträgen steht:
          **SCROLL selbst ermöglicht es nicht, RTs ohne Spielpartner in einen CT einzufügen, daher geht das leider nicht**
       1. [x] CT laden, enthaltene RTs mit laden, Spielpartner dieser RTs mit laden
 
-   1. [ ] CT DELETE
+   1. [x] CT DELETE
       1. [x] CT löschen, RT Played-By Beziehungen ignorieren, RT Spielpartner ignorieren
       1. [x] CT löschen, RT Played-By Beziehungen mit löschen, RT Spielpartner ignorieren
       1. [ ] ~~CT löschen, RT Played-By Beziehungen mit löschen, RT Spielpartner mit löschen~~  
          **Im rollenbasierten Grundgedanken soll ein CT keine Aktionen auf RTs, die er spielt, ausüben können. Außerdem eine Kombination aus anderen Features.**
-      1. [ ] CT löschen, enthaltene RT mit all deren Played-By Beziehungen zu anderen löschen  
-         **Eine Kombination aus anderen Features und so lieber gewollt vom User mit mehr Acht zu verwenden.**  
-         -> ??? oder doch ???
+      1. [x] CT löschen, enthaltene RT mit all deren Played-By Beziehungen zu anderen löschen, Spielpartner ignorieren
+      1. [ ] ~~CT löschen, enthaltene RT mit all deren Played-By Beziehungen zu anderen löschen, Spielpartner mit löschen~~  
+         **nicht implementieren, da bei RT DELETE Spielpartner auch nicht mit gelöscht werden und es hier dann inkonsequent wäre.**  
   
    1. [ ] CT Großflächige Operationen
       1. [x] CT speichern/updaten, dabei alles persistieren, an das man dabei irgendwie ran kommt (möglichst nahe am "alles speichern")
       1. [ ] CT laden, alles herausziehen, an das man dabei irgendwie ran kommt (möglichst nahe am "alles laden")
-
 

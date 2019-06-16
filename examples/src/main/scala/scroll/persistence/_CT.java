@@ -261,14 +261,17 @@ public class _CT {
 
     /**
      * Löscht einen CT. Dabei werden auch alle Spielrelationen dieses CT zu RTs gelöscht.
+     * ACHTUNG: Löscht auch alle RTs, die in diesem CT enthalten sind, wodurch auch alle Played-By Relationen dieser RTs verloren gehen.
      * ACHTUNG: Dadurch können RT entstehen, die von niemandem mehr gespielt werden.
      * TODO Sollte man mit einem Garbage Collector dessen RT in der Zukunft löschen?
      *
      * @param ctObj Der CT, der gelöscht werden soll.
-     * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nicht
+     * @param deleteOnlyIfEmpty `true`=nur löschen, wenn der CT keine RT enthält (wirft Exception, wenn doch); `false`=Löscht auch, wenn noch RT
+     *                          enthalten sind. RT werden dabei auch gelöscht und alle Played-By Beziehungen von diesen.
+     * @return true=Objekt wurde in der Datenbank gefunden und auch gelöscht; false=nichts gefunden und auch nichts gelöscht
      * @throws Exception
      */
-    public boolean delete(MetaPersistenceCt ctObj) throws Exception {
+    public boolean delete(MetaPersistenceCt ctObj, boolean deleteOnlyIfEmpty) throws Exception {
 //        // Das übergebene Objekt muss von einem der Metaklassen erweitert worden sein
 //        if(!MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(ctObj)))
 //            throw new Exception("Das übergebene Objekt erbt nicht von einer Metaklasse der Persistierung.");
@@ -281,22 +284,50 @@ public class _CT {
 //        UUID uuid_ = HelperGetUUID.getUUID(ctObj);
         UUID uuid_ = ((MetaPersistenceCt) ctObj).uuid_();
 
-        // DELETE auf der Datenbank ausführen
-        Query query = session.createQuery("delete from CT as ct where ct.uuid_ = :uuid ");
-        query.setParameter("uuid", uuid_);
-        int numberRowsChanged = query.executeUpdate();
+//        // DELETE auf der Datenbank ausführen
+//        Query query = session.createQuery("delete from CT as ct where ct.uuid_ = :uuid ");
+//        query.setParameter("uuid", uuid_);
+//        int numberRowsChanged = query.executeUpdate();
+
+        // Entität aus der Datenbank ermitteln
+        Query query = session.createQuery("select ct from CT as ct where ct.uuid_ = :uuid ");
+        query.setParameter("uuid", ctObj.uuid_());
+        List<?> allCTs = query.list();
+
+        // Mindestens ein Eintrag muss gefunden werden
+        if(allCTs.size() == 0)
+            return false;
+        CT ct = (CT) allCTs.get(0); // kann ja nur einer gefunden werden, da UUIDs UNIQUE sind
+
+        // Hat der CT enthaltene RTs?
+        if(ct.containing.size() > 0){
+            // Möchte der Entwickler diese überhaupt mit löschen?
+            if(deleteOnlyIfEmpty)
+                throw new Exception("Der zu löschende CT ist nicht leer, soll aber nur gelöscht werden, wenn er es ist.");
+
+            // Alle RTs löschen
+            for(Entity rt : ct.containing){
+                session.delete(rt);
+            }
+        }
+
+        // CT selbst löschen
+        session.delete(ct);
 
         // Transaktion und Session schließen bzw. committen
         SessionFactory.closeTransaction();
 //        session.close();
 
-        // Wurde etwas gelöscht?
-        if(numberRowsChanged > 0)
-            // Mindestens einen Fund, und da UUID UNIQUE ist, wohl genau einen
-            return true;
+        // Positive Rückgabe
+        return true;
 
-        // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
-        return false;
+//        // Wurde etwas gelöscht?
+//        if(numberRowsChanged > 0)
+//            // Mindestens einen Fund, und da UUID UNIQUE ist, wohl genau einen
+//            return true;
+//
+//        // Objekt wurde nicht gefunden und wurde daher auch nicht gelöscht
+//        return false;
     }
 
     /**
