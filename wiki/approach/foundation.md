@@ -21,7 +21,7 @@ von Entitäten. So gibt es eine Entität, die NTs abbilden kann, eine andere fü
 wiederum mit den NTs verknüpft seien können usw.  
 Alles so variabel, dass man später mit richtiger Serialisierung alles ablegen kann.  
 -> siehe Klassendiagramm  
-Das UML Klassendiagramm beinhaltet auch die vier Ansätze für den Projektaufbau. Der letzte ist der
+Das UML Klassendiagramm beinhaltet alle Ansätze für den Projektaufbau. Der letzte ist der
 neuste und umgesetzte Ansatz.
 
 
