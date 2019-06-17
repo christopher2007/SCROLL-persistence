@@ -27,10 +27,10 @@ public class Database {
     }
 
     /**
-     * @return Instanz für die Arbeit mit Massenoperationen auf CT's.
+     * @return Instanz für die Arbeit mittels Massenoperationen.
      */
-    public static _CTgroundOperation ct_groundOperation(){
-        return _CTgroundOperation.getInstance();
+    public static _groundOperations groundOperations(){
+        return _groundOperations.getInstance();
     }
 
 }

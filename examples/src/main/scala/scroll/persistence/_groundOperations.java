@@ -8,16 +8,16 @@ import scroll.persistence.Util.*;
 
 import java.util.*;
 
-public class _CTgroundOperation {
+public class _groundOperations {
 
     // Singelton Pattern
-    private static _CTgroundOperation instance;
-    private _CTgroundOperation() {}
+    private static _groundOperations instance;
+    private _groundOperations() {}
     // protected, nur für aktuelles Package
-    protected static _CTgroundOperation getInstance () {
-        if (_CTgroundOperation.instance == null)
-            _CTgroundOperation.instance = new _CTgroundOperation();
-        return _CTgroundOperation.instance;
+    protected static _groundOperations getInstance () {
+        if (_groundOperations.instance == null)
+            _groundOperations.instance = new _groundOperations();
+        return _groundOperations.instance;
     }
 
     /**
@@ -45,6 +45,9 @@ public class _CTgroundOperation {
      * gehangelt zu allen enthaltenen RTs, den Spielpartnern dieser RTs und falls davon ein CT dabei ist, wird das gleiche Verfahren dort wiederholt.
      * Diese Methode versucht so tief nur irgend möglich zu gelangen um einem "alles speichern" ähnlich zu sein.
      *
+     * Entgegen dem `selectRecursive` ist dies nur eine Annäherung am "alles speichern", da eine wirkliche gesamte Sicht auf die Anwendung in
+     * SCROLL selbst leider nicht möglich ist.
+     *
      * === Algorithmus mit Problem:
      * Eigentlich wäre der primitive Ansatz, die UUIDs von allen Objekten zwischenzuhalten, die man schon gespeichert hat. Allerdings
      * könnte es folgendes Szenario geben:
@@ -60,8 +63,6 @@ public class _CTgroundOperation {
      * angeben, unabhängig deren UUIDs.
      * Die von dieser Methode aufgerufenen weiteren Methoden kümmern sich dann um die UUIDs und die Persistenzebene mit Dopplungen, dies
      * kann daher hier ignoriert werden.
-     *
-     * TODO ist nicht ganz so schön, da Schleifen in Schleifen. Wären als zwei oder drei Methoden, die sich rekursiv aufrufen, wohl um einiges schöner, solange eine META Instanz den Cache für alle bereitstellt. Aber da es so geht ist das "verschönern" wohl etwas für die Zukunft.
      *
      * @param ctObj Der zu speichernde CT, welcher als Ausgangspunkt genutzt wird
      * @throws Exception
@@ -207,6 +208,22 @@ public class _CTgroundOperation {
 
         // Rückgabe der veränderten Informationen dieser Ebene
         return levelInformation;
+    }
+
+    /**
+     * Ein Ansatz für "alles laden".
+     * Läd alle CTs, die in der Datenbank persistiert sind. Dazu alle enthaltenen RTs und alle Spielpartner dieser RTs.
+     *
+     * Zwei Dinge werden leider später nicht mehr Zugreifbar sein:
+     * - RTs, die von niemandem gespielt werden (können in SCROLL keinem CT zugeordnet werden und werden daher ausgelassen)
+     * - NTs oder CTs, die niemanden spielen (Da eine Liste aus CTs zurück gegeben wird, wird man nicht verbundene NTs/CTs nicht wieder finden können,
+     *   auch wenn sie eigentlich geladen wurden)
+     *
+     * @return Liste aller in der Datenbank gefundenen CTs mit den enthaltenen RTs und deren Spielpartnern.
+     * @throws Exception
+     */
+    public List<MetaPersistenceCt> selectRecursive() throws Exception {
+        return null;
     }
 
 }
