@@ -13,7 +13,7 @@ lazy val root = (project in file(".")).
     name := "SCROLLRoot",
     noPublishSettings
   ).
-  aggregate(core, tests, examples)
+  aggregate(core, tests, corePersistence)
 
 lazy val commonSettings = Seq(
   scalaVersion := lib.v.scalaVersion,
@@ -138,7 +138,7 @@ lazy val core = project.
         </developers>
   )
 
-lazy val examples = project.
+lazy val corePersistence = project.
   settings(commonSettings).
   dependsOn(core)
 
@@ -162,7 +162,7 @@ lazy val tests = project.
     ),
     libraryDependencies ++= lib.testDependencies
   ).
-  dependsOn(core, examples)
+  dependsOn(core, corePersistence)
 
 lazy val benchmark = project.
   settings(

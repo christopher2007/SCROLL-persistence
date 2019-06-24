@@ -1,6 +1,6 @@
 package scroll.examples
 
-import com.github.fluent.hibernate.cfg.scanner.EntityScanner
+//import com.github.fluent.hibernate.cfg.scanner.EntityScanner
 import scroll.internal.Compartment
 import org.hibernate._
 import javax.persistence._
@@ -50,7 +50,7 @@ object UniversityExample {
     println("===== START =====")
 
     val uni = new University {
-
+/*
       // Eigene Klassenvariablen der Univresität
       this.country = "Deutschland"
 
@@ -176,7 +176,35 @@ object UniversityExample {
       // delete
 //      Database.ct.delete(this) // geht hier nicht, da im CT noch RTs enthalten sind. Diese müssten zuerst gelöscht werden
 
+*/
 
+
+
+
+
+/*
+      val hans = new Person("Hans Irgendwas")
+      val student2 = new Student
+      student2.matNr = 6789
+      hans play student2
+      Database.rt.createOrUpdate(student2, true, true)
+*/
+
+
+
+
+
+
+      Database.rt.select(classOf[Student], "matNr", 6789, true, this)
+
+      Serializer.printAllFields(this.allPlayers)
+      for(obj <- this.allPlayers){
+        println("=============================")
+        for(inner <- obj.roles()){
+          println("---------------------")
+          Serializer.printAllFields(inner)
+        }
+      }
 
 
 
