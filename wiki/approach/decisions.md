@@ -2,7 +2,7 @@
 
 - Allgemein  
   Objekte werden, da die Klassen im Vorfeld unbekannt sind, auf Entitäten gemäß dem entworfenen
-  Klassendiagramm zerlegt. Mittels Reflection also eigene Serializer programmiert.
+  Klassendiagramm zerlegt. Mittels Reflection, also eigenen Serializer programmiert.
   
 - INSERT  
   Wenn ein Objekt gespeichert wird, also ein INSERT ausgeführt wird, es danach verändert wird und
@@ -12,8 +12,8 @@
   ausgeführt werden. Hat die Entity bereits eine ID, so wird diese für ein UPDATE genutzt, um die
   Entity eindeutig zuweisen zu können.  
   Lösung: UUID des zu speichernden Objektes ermitteln und diesen als eindeutigen Identifikator
-  nutzen. Bei jedem Speichern also überprüfen, ob diese UUID schon vorhanden ist und wenn ja,
-  die Operation als UPDATE betrachten.
+  nutzen. Bei jedem Speichern also zuerst überprüfen, ob es eine entsprechende UUID schon in der
+  Datenbank gibt. Wenn ja, ist es ein update, andernfalls ein insert.
   
 - SELECT  
   Eigentlich wollte ich hier den Ansatz gehen, dass der ausgeführte SELECT ein Objekt
@@ -73,12 +73,8 @@
      er persistieren möchte. Zudem sehr komplex in der Entwicklung, siehe Projekt `Lombok`, den `AST`
      zu manipulieren ist nicht ohne.
      
-- Die UUID wird durch vererbung vergeben. Daher müssen NT, RT und CT im SCROLL ab jetzt von der
+- Die UUID wird durch Vererbung vergeben. Daher müssen NT, RT und CT im SCROLL ab jetzt von der
   entsprechenden Metaklasse erben. (Siehe Codebeispiel)
-  
-- Wird bei einer Abfrage (=`select`) kein Eintrag gefunden, so wird kein Fehler geworfen, sondern
-  das zugrundeliegende Objekt hat `null` in der `uuid_`. So kann man darauf abfragen und auf diesem
-  Weg prüfen, ob ein Ergebnis gefunden wurde.
   
 - Spielrelationen werden immer mit dem persistieren der RT mit gespeichert. NT & CT können einfach so
   gespeichert werden, aber bei dem speichern eines RT werden gezwungenermaßen auch die aktuell existierenden
@@ -86,12 +82,21 @@
   Ebenso muss bei dem Speichern eines RT auch der CT mit persistiert oder bereits persistiert worden sein,
   in dem sich der zu speichernde RT befindet. Auch hier geht es nicht ohne.
   
+- SCROLL baut in SCALA Compartments mit inneren NTs und RTs. Diese werden zur Laufzeit von Java mittels
+  anonymer innerer Klassen umgesetzt. Dies stellt akute Probleme da, da anonyme innere Klassen von
+  Java Reflection nut bedingt erreicht werden kann. Jedoch sind Reflections die einzige Möglichkeit,
+  Instanzen dynamisch zur Laufzeit erzeugen zu lassen.  
+  Daher gehen SELECTs bei Compartments initial nicht und mussten komplett einzeln betrachtet und
+  entwickelt werden. Immer über die in Java bekannte Superklasse.  
+  In diesem Zuge verwende ich **nicht** das standardmäßige `o.getClass()`, sondern eine eigene
+  Implementierung, welche man über `BasicClassInformation.getClass(o)` erreicht.
+
 - Um einen NT, RT und CT auseinander halten zu können, kann auf die Vererbte Klasse geprüft werden.
   Denn da alle drei von unterschiedlichen Metaklassen erben müssen, kann man sehr schön mittels
   ```java
-  MetaPersistenceNt.class.isAssignableFrom(someObject.getClass()) // NT
-  MetaPersistenceRt.class.isAssignableFrom(someObject.getClass()) // RT
-  MetaPersistenceCt.class.isAssignableFrom(someObject.getClass()) // CT
+  MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(someObject)) // NT
+  MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(someObject)) // RT
+  MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(someObject)) // CT
   ```
   prüfen, von welcher Metaklasse das übergebene Objekt erbt und um was für eine Entity es sich
   dadurch handelt.
@@ -107,13 +112,4 @@
   ```
   Dies ist nicht nur wesentlich kürzer, sondern auch übersichtlicher und vom späteren Entwickler
   leichter zu nutzen.
-
-- SCROLL baut in SCALA Compartments mit inneren NTs und RTs. Diese werden zur Laufzeit von Java mittels
-  anonymer innerer Klassen umgesetzt. Dies stellt akute Probleme da, da anonyme innere Klassen von
-  Java Reflection nut bedingt erreicht werden kann. Jedoch sind Reflections die einzige Möglichkeit,
-  Instanzen dynamisch zur Laufzeit erzeugen zu lassen.  
-  Daher gehen SELECTs bei Compartments initial nicht und mussten komplett einzeln betrachtet und
-  entwickelt werden. Immer über die in Java bekannte Superklasse.  
-  In diesem Zuge verwende ich **nicht** das standardmäßige `o.getClass()`, sondern eine eigene
-  Implementierung, welche man über `BasicClassInformation.getClass(o)` erreicht.
 

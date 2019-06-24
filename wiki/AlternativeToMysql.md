@@ -1,8 +1,14 @@
-# PostgreSQL statt MySQL
+# Alternativen statt MySQL
 
-Um statt der relationalen Datenbank MySQL lieber PostgreSQL nutzen zu können, bitte das folgende gewissenhaft umstellen.  
-Dieser Wiki Eintrag ist auch ein guter Leitfaden für die notwendigen Änderungen auf Datenbanksysteme außerhalb von MySQL und PostgreSQL,
-da hier alles aufgezeigt wird, was es anzupassen gilt.
+Standardmäßig wird MySQL als Datanbank verwendet. Unterstützt wird jedoch jeder relationale Datenbank Typ, der auch von
+Hibernate unterstützt wird.  
+
+Im folgenden wird gezeigt, wie man die eingebettete MySQL Datenbank mit einer Alternative austauschen kann.  
+Beispielhaft wird dies an dem Einsatz von PostgreSQL gezeigt.
+
+
+
+## PostgreSQL statt MySQL (Beispielhafter Leitfaden)
 
 In der `hibernate.cfg.xml` folgendes ändern:
 

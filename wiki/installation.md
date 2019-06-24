@@ -18,19 +18,20 @@
 
 ## IDE Verwendung
 
-- `IntelliJ`: verwende den mitgelieferten SBT Importer
+- `IntelliJ`: verwende den mitgelieferten SBT Importer  
+  1. Entweder auf `New` >> `Project from Existing Sources` oder im Dash-Screen auf `Import Project` klicken
+  1. den Ordner des Projektes anpeilen und bestätigen
+  1. unter `Import project from external model` dann `sbt` auswählen und bestätigen
+  1. die korrekte Java Version wählen und die restlichen Einstellungen nach eigenem Ermessen wählen. Bestätigen.
+  1. Hat man alles richtig eingestellt, läuft der Import ohne Fehler durch
 - `Eclipse`: verwende das [sbteclipse](https://github.com/typesafehub/sbteclipse) SBT Plugin
 
 
 
 ## Automatischer Weg
 
-Das Repository enthält beide ineinander verschlungene Projekte:
-
-- `SCROLL`
-- `SCROLL-persistence`
-
-Da `SCROLL-persistence` vollständig auf `SCROLL` aufbaut, ist es wichtig, kompatible Versionen zu nutzen.
+Dieses Repository enthält das `SCROLL-persistence` Projekt, welches sich mittels Dependencies auf das Projekt
+`SCROLL` stützt.
 
 Der direkte Weg, das Projekt zu installieren, besteht also aus folgenden Schritten:
 
@@ -38,58 +39,7 @@ Der direkte Weg, das Projekt zu installieren, besteht also aus folgenden Schritt
   `git clone https://github.com/christopher2007/SCROLL-persistence.git`
 1. In einer beliebigen IDE öffnen (siehe Abschnitt `IDE Verwendung` dieser Anleitung)
 1. Projekt mittels SBT importieren und Dependencies laden lassen
-1. `examples/src/main/scala/scroll/examples/UniversityEcample.scala` öffnen und starten/bauen lassen
-
-
-
-## Manueller Weg und SCROLL Update
-
-Möchte man die zugrunde liegende SCROLL Version updaten, um eine neuere Version nutzen zu können, so ist eine
-manuelle Zusammenführung beider Projekte nötig. Dies wird im folgenden beschrieben.
-
-### aktuell eingebettetes SCROLL entfernen
-
-Folgende Dateien und Ordner müssen entfernt werden:
-
-```
-.
-+-- benchmark/
-+-- core/
-+-- project/
-+-- tests/
-+-- .gitattributes
-+-- .gitlab-ci.yml
-+-- .travis.yml
-+-- README_from-SCROLL.md
-+-- scalastyle-config.xml
-```
-
-### neue SCROLL Version integrieren
-
-Folgende Projekte müssen in ein und den selben Ordner kopiert werden:
-
-- zuerst: https://github.com/max-leuthaeuser/SCROLL
-- nachfolgend: https://github.com/christopher2007/SCROLL-persistence
-
-Folgende Dateien und Ordner verursachen dabei Konflikte und Probleme:
-
-- `./examples/`  
-  Den Ordner vollständig aus dem Projekt `SCROLL-persistence` nehmen.
-- `./README.md`  
-  Diese Datei aus `SCROLL` umbenennen zu `README_from-SCROLL.md` und neben die `README.md` aus `SCROLL-persistence` legen.
-- `./build.sbt`  
-  Manuell kombinieren, vorsichtig vorgehen, scharfes Hinsehen (!!!)
-- `./LICENSE`  
-  Egal, welche man nimmt
-
-
-
-## Dependency Weg
-  
-`SCROLL` als Dependency mittels
-```
-"com.github.max-leuthaeuser" %% "scroll" % "1.8"
-```
+1. `corePersistence/src/main/scala/scroll/examples/UniversityEcample.scala` öffnen und starten/bauen lassen
 
 
 
@@ -102,10 +52,9 @@ Die Hibernate Konfiguration ist zu finden unter:
 
 Standardmäßig wird MySQL verwendet. Unterstützt wird jedoch jeder relationale Datenbank Typ, der auch von
 Hibernate unterstützt wird.  
-Eine Anleitung für das Verwenden von PostgreSQL statt MySQL befindet sich hier:  
-[PostgreSQL statt MySQL](PostgreSQL-statt-MySQL)  
-Dieser Wiki Eintrag ist auch ein guter Leitfaden für die notwendigen Änderungen auf Datenbanksysteme außerhalb
-von MySQL und PostgreSQL, da hier alles aufgezeigt wird, was es anzupassen gilt.
+Eine Anleitung für das Verwenden von Alternativen statt MySQL befindet sich hier:  
+[Alternativen statt MySQL](Alternativen-statt-MySQL)  
+Hier wird das Einbetten einer anderen relationalen Datenbank beispielhaft anhand von PostgreSQL gezeigt.
 
 ### Datenbank Verbindungsdaten
 

@@ -11,6 +11,7 @@ So kann man z.B. einen NT erzeugen als `nt1`, ihn dann speichern und als `nt2` l
 Die Persistenz behandelt nun beide aufgrund der selben UUID gleich. Egal welches der beiden Objekte man für ein UPDATE nutzt, in der Datenbank
 gibt es nur ein Objekt für diese Entität.  
 In SCROLL jedoch sind es zwei völlig unterschiedliche Instanzen, die auch unterschiedliche Played-By Beziehungen besitzen können.  
+(Zur Laufzeit unterschiedliche Speicherplätze im Arbeitsspeicher und somit unterschiedliche Hash-Codes.)  
   
 Dies müsste man jedoch im Kern von SCROLL selbst behandeln. Ein `Garbage Collector` müsste sich darum kümmern, gleiche Objetke zusammenzufassen,
 sobald diese erzeugt werden.  
