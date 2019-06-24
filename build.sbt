@@ -26,7 +26,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= lib.coreDependencies,
   libraryDependencies ++= Seq(
     // SCROLL selbst
-    "com.github.max-leuthaeuser" %% "scroll" % "1.8",
+    "com.github.max-leuthaeuser" %% "scroll" % "1.9",
 
     "mysql" % "mysql-connector-java" % "8.0.13",
     "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
