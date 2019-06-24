@@ -17,7 +17,7 @@ examples/src/main/scala/META-INF/
 .travis.yml
 benchmark/
 core/
-project/
+#project/
 
 
 #tests/
