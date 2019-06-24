@@ -1,9 +1,15 @@
 package scroll.persistence;
 
+import org.hibernate.Session;
+import org.hibernate.query.Query;
 import scala.collection.JavaConverters;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
+import scroll.persistence.Inheritance._meta;
+import scroll.persistence.Model.CT;
+import scroll.persistence.Model.Entity;
+import scroll.persistence.Model.RT;
 import scroll.persistence.Util.*;
 
 import java.util.*;
@@ -210,6 +216,7 @@ public class _groundOperations {
         return levelInformation;
     }
 
+
     /**
      * Ein Ansatz für "alles laden".
      * Läd alle CTs, die in der Datenbank persistiert sind. Dazu alle enthaltenen RTs und alle Spielpartner dieser RTs.
@@ -223,7 +230,71 @@ public class _groundOperations {
      * @throws Exception
      */
     public List<MetaPersistenceCt> selectRecursive() throws Exception {
-        return null;
-    }
+        // Session und Transaktion ermitteln bzw. initialisieren
+        Session session = SessionFactory.getNewOrOpenSession();
+        SessionFactory.openTransaction();
 
+//        // Klassen-Spezifische Informationen ermitteln
+//        BasicClassInformation classInfos = new BasicClassInformation(ctObjClass);
+
+        // alle CT aus der Datenbank ermitteln
+//        List<CT> allCt = this.ctRepository.findAllByHash(hash);
+        Query query = session.createQuery("select ct from CT as ct");
+//        query.setParameter("classPackage", classInfos.classPackage);
+        List<?> allCTs = query.list();
+
+        // Rückgabe Liste initialisieren
+//        List<?> results = new ArrayList<Object>();
+//        ArrayList<?> results = ListHelper.listOf((Class<?>) ctObjClass);
+//        ArrayList<Object> results = ListHelper.listOf(ctObjClass);
+        ArrayList<MetaPersistenceCt> results = new ArrayList<>();
+
+        // Einen Cache für Objekte gleicher UUIDs initialisieren
+        CacheHelperUUID cache = new CacheHelperUUID();
+
+        // Über alle gefundenen Entitäten iterieren
+        if(allCTs.size() > 0){
+            for(CT ct : (List<CT>) allCTs){
+//                ct = (CT) session.merge(ct); // re-attach
+
+                // Aus der Entität aus der Datenbank eine Instanz der eigentlich echten Anwendung machen
+                Object newObj = Serializer.getInstanceOfEntity(ct, Class.forName(ct.classPackage));
+                _meta realCt = cache.get((_meta) newObj);
+
+                // alle enthaltenen RT ermitteln
+                for(RT rt : ct.containing){
+                    // Anwendungs-Objekt erzeugen (Realanwendung)
+                    Object roleObj = Serializer.getInstanceOfEntity(rt, Class.forName(rt.classPackage));
+                    _meta role = cache.get((_meta) roleObj);
+
+                    // rigide Spielpartner mit ermitteln
+                    for(Entity e : rt.playedBy){
+                        // Anwendungs-Objekt erzeugen (Realanwendung)
+                        Object rigidObj = Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage));
+                        _meta rigid = cache.get((_meta) rigidObj);
+
+//                        // Was ist der Spielpartner genau?
+//                        if(MetaPersistenceCt.class.isAssignableFrom(BasicClassInformation.getClass(rigid))) { // CT gefunden
+//                        }else if(MetaPersistenceNt.class.isAssignableFrom(BasicClassInformation.getClass(rigid))){ // NT gefunden
+//                        }else if(MetaPersistenceRt.class.isAssignableFrom(BasicClassInformation.getClass(rigid))){ // RT gefunden
+//                        }else // nichts, was wir erwarten würden
+//                            throw new Exception("Ein enthaltenes Objekt erbt nicht von der benötigten Persistierungs Struktur.");
+
+                        // In dem CT, in dem sich der RT befindet, auch die played By Beziehungen setzen
+                        _CT.addPlayedByInCT((MetaPersistenceCt) realCt, rigid, role);
+                    }
+                }
+
+                // Das fertige neue Objekt der Rückgabe Liste hinzufügen
+                results.add((MetaPersistenceCt) realCt);
+            }
+        }
+
+        // Transaktion und Session schließen bzw. committen
+        SessionFactory.closeTransaction();
+//        session.close();
+
+        // Rückgabe der Ergebnisse
+        return results;
+    }
 }

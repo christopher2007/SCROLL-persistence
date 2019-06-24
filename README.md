@@ -83,7 +83,7 @@ hinter den entsprechenden Einträgen steht:
 
 
 
-1. [ ] CT
+1. [x] CT
 
    1. [x] CT INSERT / UPDATE
       1. [x] CT speichern/updaten, RT Playing ignorieren, keine Duplikatserkennung semantisch gleicher Instanzen
@@ -113,8 +113,20 @@ hinter den entsprechenden Einträgen steht:
       1. [x] CT löschen, enthaltene RT mit all deren Played-By Beziehungen zu anderen löschen, Spielpartner ignorieren
       1. [ ] ~~CT löschen, enthaltene RT mit all deren Played-By Beziehungen zu anderen löschen, Spielpartner mit löschen~~  
          **nicht implementieren, da bei RT DELETE Spielpartner auch nicht mit gelöscht werden und es hier dann inkonsequent wäre.**  
-  
-   1. [ ] CT Großflächige Operationen
-      1. [x] CT speichern/updaten, dabei alles persistieren, an das man dabei irgendwie ran kommt (möglichst nahe am "alles speichern")
-      1. [ ] CT laden, alles herausziehen, an das man dabei irgendwie ran kommt (möglichst nahe am "alles laden")
+
+
+
+1. [x] Massenoperationen (Annäherung an `alles speichern` und `alles laden`)
+
+   1. [x] von der globalen Ansicht ausgehend
+      1. [ ] ~~alle CT speichern/updaten, dabei auch alle enthaltenen RT, alle Spielbeziehungen, ...~~  
+         **nicht möglich, da es in SCROLL selbst keine Möglichkeit gibt, alle CTs zu erhalten.**
+      1. [x] alle CT laden, dabei auch alle enthaltenen RT, alle Spielbeziehungen, ...
+   
+   1. [x] von einem CT ausgehend
+      1. [x] einen CT übergeben, diesen speichern/updaten, dabei alles persistieren, an das man dabei irgendwie ran kommt (enthaltene CT, deren Spieler, ...)  
+         **Alternative, da alle CT speichern/updaten nicht geht, siehe Problem oben.**
+      1. [ ] ~~einen CT laden, alles herausziehen, an das man dabei irgendwie ran kommt~~  
+         **Redundant, da ohne großen Aufwand für einen Entwickler später selbst möglich zu implementieren, da das normale Laden eines CT schon alles
+         nötige bereitstellt. Zudem gefährlich, da nur Teilansichten geladen werden und ein wirkliches `alles laden` (siehe oben) mehr Sinn macht.**
 

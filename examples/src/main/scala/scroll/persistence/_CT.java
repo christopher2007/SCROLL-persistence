@@ -6,6 +6,7 @@ import scala.reflect.ClassTag;
 import scroll.persistence.Inheritance.MetaPersistenceCt;
 import scroll.persistence.Inheritance.MetaPersistenceNt;
 import scroll.persistence.Inheritance.MetaPersistenceRt;
+import scroll.persistence.Inheritance._meta;
 import scroll.persistence.Model.CT;
 import scroll.persistence.Model.Entity;
 import scroll.persistence.Model.RT;
@@ -277,6 +278,9 @@ public class _CT {
 //        ArrayList<?> results = ListHelper.listOf((Class<?>) ctObjClass);
         ArrayList<Object> results = ListHelper.listOf(ctObjClass);
 
+        // Einen Cache für Objekte gleicher UUIDs initialisieren
+        CacheHelperUUID cache = new CacheHelperUUID();
+
         // Über alle gefundenen Entitäten iterieren
         if(allCTs.size() > 0){
             for(CT ct : (List<CT>) allCTs){
@@ -284,18 +288,24 @@ public class _CT {
 
                 // Aus der Entität aus der Datenbank eine Instanz der eigentlich echten Anwendung machen
                 Object newObj = Serializer.getInstanceOfEntity(ct, ctObjClass);
+                _meta realCt = cache.get((_meta) newObj);
 
                 // Sollen in diesem CT auch die enthaltenen RT ermittelt werden?
                 if(alsoSelectContainingRTs){
                     for(RT rt : ct.containing){
+                        // Anwendungs-Objekt erzeugen (Realanwendung)
+                        Object roleObj = Serializer.getInstanceOfEntity(rt, Class.forName(rt.classPackage));
+                        _meta role = cache.get((_meta) roleObj);
+
                         // rigide Spielpartner mit ermitteln?
                         if(alsoSelectPlayersFromContainingRTs){
                             for(Entity e : rt.playedBy){
                                 // Anwendungs-Objekt erzeugen (Realanwendung)
-                                Object rigid = Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage));
+                                Object rigidObj = Serializer.getInstanceOfEntity(e, Class.forName(e.classPackage));
+                                _meta rigid = cache.get((_meta) rigidObj);
 
                                 // In dem CT, in dem sich der RT befindet, auch die played By Beziehungen setzen
-                                _CT.addPlayedByInCT((MetaPersistenceCt) newObj, rigid, rt);
+                                _CT.addPlayedByInCT((MetaPersistenceCt) realCt, rigid, role);
                             }
                         }else{
                             //TODO
@@ -306,7 +316,7 @@ public class _CT {
                 }
 
                 // Das fertige neue Objekt der Rückgabe Liste hinzufügen
-                results.add(newObj);
+                results.add((MetaPersistenceCt) realCt);
             }
         }
 
