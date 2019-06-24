@@ -35,3 +35,9 @@
 - Wie persistiert man einen RT, der einen anderen RT spielt, der wiederum den ersten RT spielt?  
   Sehr nerviges gefriemel mit vielen Fallunterscheidungen, aber natürlich möglich.
 
+- Beim CT SELECT können enthaltene RT ohne deren Spielpartner nicht geladen werden, da RTs ohne
+  Spielpartner in SCROLL selbst keinem CT hinzugefügt werden können.
+
+- RT kann keinen RT spielen (am Anfang der Arbeit so festgelegt, bringt auch Probleme, da wenn man z.B. einen RT ermitteln möchte mit all
+  seinen Spielern und ein Spieler selbst wiederum ein RT ist, müsste dieser RT Spieler in einem CT liegen und das müsste explizit noch
+  behandelt werden -> endlose ketten möglich)

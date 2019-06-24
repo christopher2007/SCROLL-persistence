@@ -31,9 +31,6 @@ Das Repository enthält beide ineinander verschlungene Projekte:
 - `SCROLL-persistence`
 
 Da `SCROLL-persistence` vollständig auf `SCROLL` aufbaut, ist es wichtig, kompatible Versionen zu nutzen.
-Außerdem nutzt das Persistierungsprojekt Methoden in SCROLL, die es von Haus aus noch nicht gibt, da
-SCROLL im Zuge der Entwicklung von SCROLL-persistence erweitert wurde.
-Daher ist in diesem Projekt eine solche bereits modifizierte Version schon vollständig enthalten.
 
 Der direkte Weg, das Projekt zu installieren, besteht also aus folgenden Schritten:
 
@@ -85,37 +82,14 @@ Folgende Dateien und Ordner verursachen dabei Konflikte und Probleme:
 - `./LICENSE`  
   Egal, welche man nimmt
 
-### Erweiterung von SCROLL
-
-Die Klasse `/core/src/main/scala/scroll/internal/Compartment.scala` mit folgender Methode erweitern:  
-  
-```scala
-/**
- * get all rigid types of the hash from one role type.
- * 
- * @param hash
- * @return
- */
-def getRolesFromHash(hash: Int): Seq[AnyRef] = {
-    plays.allPlayers.foreach { p =>
-        if (p.hashCode() == hash)
-        {
-          return p.predecessors()
-        }
-    }
-    null
-}
-```
-
 
 
 ## Dependency Weg
   
 `SCROLL` als Dependency mittels
-```java
+```
 "com.github.max-leuthaeuser" %% "scroll" % "1.8"
 ```
-einzubinden funktioniert leider aufgrund der Erweiterung in der Compartment Klasse noch nicht.
 
 
 

@@ -26,8 +26,8 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= lib.coreDependencies,
   libraryDependencies ++= Seq(
     // SCROLL selbst
-    //"com.github.max-leuthaeuser" %% "scroll" % "1.8",
-    
+    "com.github.max-leuthaeuser" %% "scroll" % "1.8",
+
     "mysql" % "mysql-connector-java" % "8.0.13",
     "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
     "javax.transaction" % "jta" % "1.1",
@@ -52,6 +52,8 @@ lazy val commonSettings = Seq(
 
     "org.springframework.boot" % "spring-boot-starter-web" % "1.0.2.RELEASE",
     "org.springframework.boot" % "spring-boot-starter-data-jpa" % "1.0.2.RELEASE",
+
+    "org.junit.jupiter" % "junit-jupiter-engine" % "5.4.2"
   ),
   dependencyOverrides ++= lib.coreDependenciesOverrides,
   javacOptions in Compile ++= Seq("-source", "1.8", "-target", "1.8"),
