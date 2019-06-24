@@ -12,15 +12,12 @@ source_gen*
 /bin/
 classes/
 examples/src/main/scala/META-INF/
-
-
-
-#.gitattributes
-#.gitlab-ci.yml
-#.travis.yml
-#benchmark/
-#core/
-#project/
+.gitattributes
+.gitlab-ci.yml
+.travis.yml
+benchmark/
+core/
+project/
 
 
 #tests/
