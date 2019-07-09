@@ -1,173 +1,45 @@
-val lib = Dependencies
-val linting = Linting
+mainClass in (Compile, run) := Some("UniversityExample")
 
-val utf8 = java.nio.charset.StandardCharsets.UTF_8.toString
-
-ThisBuild / scalaVersion := lib.v.scalaVersion
-
-lazy val noPublishSettings =
-  Seq(publish := {}, publishLocal := {}, publishArtifact := false)
-
-lazy val root = (project in file(".")).
+lazy val ttcrsync = (project in file(".")).
   settings(
-    name := "SCROLLRoot",
-    noPublishSettings
-  ).
-  aggregate(core, tests, corePersistence)
+    name := "SCROLLPersistence",
+    version := "0.1",
+    scalaVersion := "2.12.6",
+    sbtVersion := "1.2.8",
+    libraryDependencies ++= Seq(
+      // SCROLL selbst
+      "com.github.max-leuthaeuser" %% "scroll" % "1.8",
 
-lazy val commonSettings = Seq(
-  scalaVersion := lib.v.scalaVersion,
-  version := "1.9",
-  mainClass := None,
-  resolvers ++= Seq(
-    "Sonatype OSS Snapshots" at "https://oss.sonatype.org/content/repositories/snapshots",
-    "Sonatype OSS Releases" at "https://oss.sonatype.org/content/repositories/releases"
-  ),
-  libraryDependencies ++= lib.coreDependencies,
-  libraryDependencies ++= Seq(
-    // SCROLL selbst
-    "com.github.max-leuthaeuser" %% "scroll" % "1.9",
+      // Datenbank
+      "mysql" % "mysql-connector-java" % "8.0.13", // MySQL
+//      "org.postgresql" % "postgresql" % "9.4-1200-jdbc41", // PostgreSQL
 
-    "mysql" % "mysql-connector-java" % "8.0.13",
-    "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
-    "javax.transaction" % "jta" % "1.1",
-//    "com.github.v-ladynev" % "fluent-hibernate-core" % "0.3.1",
-    "org.hibernate" % "hibernate-core" % "5.3.7.Final",
+      // Hibernate
+      "org.hibernate" % "hibernate-core" % "5.3.7.Final",
+      "org.hibernate" % "hibernate-entitymanager" % "5.3.7.Final",
+      "javax.transaction" % "jta" % "1.1",
 
-    // Logging
-//    "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
-//    "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
-//    "org.jboss.logging" % "jboss-logging" % "3.3.2.Final",
+      "javax.xml.bind" % "jaxb-api" % "2.3.1",
+      "javax.activation" % "activation" % "1.1.1",
+      "com.sun.xml.bind" % "jaxb-core" % "2.3.0.1",
+      "com.sun.xml.bind" % "jaxb-impl" % "2.3.1",
 
-    "javax.xml.bind" % "jaxb-api" % "2.3.1",
-    "javax.activation" % "activation" % "1.1.1",
-    "com.sun.xml.bind" % "jaxb-core" % "2.3.0.1",
-    "com.sun.xml.bind" % "jaxb-impl" % "2.3.1",
+      // Spring
+      "org.springframework.boot" % "spring-boot-starter-web" % "1.0.2.RELEASE",
+      "org.springframework.boot" % "spring-boot-starter-data-jpa" % "1.0.2.RELEASE",
 
-    //    "edu.uci.ics" % "crawler4j" % "4.4.0",
-    "dom4j" % "dom4j" % "1.6.1",
-    "commons-logging" % "commons-logging" % "1.2",
-    "commons-collections" % "commons-collections" % "3.2.2",
-    "cglib" % "cglib" % "3.2.9",
+      // jUnit Tests
+      "org.junit.jupiter" % "junit-jupiter-engine" % "5.4.2",
 
-    "org.springframework.boot" % "spring-boot-starter-web" % "1.0.2.RELEASE",
-    "org.springframework.boot" % "spring-boot-starter-data-jpa" % "1.0.2.RELEASE",
+      // Logging
+      //      "org.apache.logging.log4j" % "log4j-core" % "2.11.1",
+      //      "org.apache.logging.log4j" % "log4j-api" % "2.11.1",
+      //      "org.jboss.logging" % "jboss-logging" % "3.3.2.Final",
 
-    "org.junit.jupiter" % "junit-jupiter-engine" % "5.4.2"
-  ),
-  dependencyOverrides ++= lib.coreDependenciesOverrides,
-  javacOptions in Compile ++= Seq("-source", "1.8", "-target", "1.8"),
-  scalacOptions ++= Seq(
-    "-encoding", utf8,
-    "-deprecation",
-    "-feature",
-    "-language:dynamics",
-    "-language:reflectiveCalls",
-    "-language:postfixOps",
-    "-language:implicitConversions",
-    "-unchecked",
-    "-target:jvm-" + lib.v.jvm),
-  coverageExcludedPackages := "<empty>;scroll\\.benchmarks\\..*;scroll\\.examples\\.currency",
-  updateOptions := updateOptions.value.withCachedResolution(true),
-  historyPath := Option(target.in(LocalRootProject).value / ".history"),
-  cleanKeepFiles := cleanKeepFiles.value filterNot { file =>
-    file.getPath.endsWith(".history")
-  },
-  cancelable in Global := true,
-  logLevel in Global := {
-    if (insideCI.value) Level.Error else Level.Info
-  },
-  showSuccess := true,
-  showTiming := true,
-  initialize ~= { _ =>
-    val ansi = System.getProperty("sbt.log.noformat", "false") != "true"
-    if (ansi) System.setProperty("scala.color", "true")
-  }
-)
-
-lazy val core = project.
-  settings(
-    commonSettings,
-//    linting.staticAnalysis, // muss aktuell entfernt sein, da der core von SCROLL selbst gegenüber Lint den Standards nicht entspricht und ich nicht das zugrundeliegende Package, auf das ich mich verlasse, umschreiben möchte
-    name := "SCROLL",
-    scalacOptions ++= Seq(
-      "-Xfatal-warnings",
-      "-Xlint",
-      "-Xlint:-missing-interpolator",
-      "-Yno-adapted-args",
-      "-Ywarn-dead-code",
-      "-Ywarn-inaccessible",
-      "-Ywarn-unused",
-      "-Ywarn-unused-import",
-      "-Ywarn-numeric-widen",
-      "-Ywarn-value-discard",
-      "-Xfuture"),
-    organization := "com.github.max-leuthaeuser",
-    publishTo := {
-      val nexus = "https://oss.sonatype.org/"
-      if (isSnapshot.value) {
-        Option("snapshots" at nexus + "content/repositories/snapshots")
-      }
-      else {
-        Option("releases" at nexus + "service/local/staging/deploy/maven2")
-      }
-    },
-    publishMavenStyle := true,
-    publishArtifact in Test := false,
-    pomIncludeRepository := { _ => false },
-    pomExtra :=
-      <url>https://github.com/max-leuthaeuser/SCROLL</url>
-        <licenses>
-          <license>
-            <name>LGPL 3.0 license</name>
-            <url>http://www.opensource.org/licenses/lgpl-3.0.html</url>
-            <distribution>repo</distribution>
-          </license>
-        </licenses>
-        <scm>
-          <connection>scm:git:github.com/max-leuthaeuser/SCROLL.git</connection>
-          <developerConnection>scm:git:git@github.com:max-leuthaeuser/SCROLL.git</developerConnection>
-          <url>github.com/max-leuthaeuser/SCROLL</url>
-        </scm>
-        <developers>
-          <developer>
-            <id>max-leuthaeuser</id>
-            <name>Max Leuthaeuser</name>
-            <url>https://wwwdb.inf.tu-dresden.de/rosi/investigators/doctoral-students/</url>
-          </developer>
-        </developers>
+      //      //"edu.uci.ics" % "crawler4j" % "4.4.0",
+      //      "dom4j" % "dom4j" % "1.6.1",
+      //      "commons-logging" % "commons-logging" % "1.2",
+      //      "commons-collections" % "commons-collections" % "3.2.2",
+      //      "cglib" % "cglib" % "3.2.9",
+    )
   )
-
-lazy val corePersistence = project.
-  settings(commonSettings).
-  dependsOn(core)
-
-lazy val tests = project.
-  settings(
-    commonSettings,
-    testOptions in Test := Seq(
-      Tests.Filter(s => s.endsWith("Suite")),
-      Tests.Argument(TestFrameworks.ScalaTest
-        // F: show full stack traces
-        // S: show short stack traces
-        // D: show duration for each test
-        // I: print "reminders" of failed and canceled tests at the end of the summary,
-        //    eliminating the need to scroll and search to find failed or canceled tests.
-        //    replace with G (or T) to show reminders with full (or short) stack traces
-        // K: exclude canceled tests from reminder
-        , "-oDI"
-        // Periodic notification of slowpokes (tests that have been running longer than 30s)
-        , "-W", "30", "30"
-      )
-    ),
-    libraryDependencies ++= lib.testDependencies
-  ).
-  dependsOn(core, corePersistence)
-
-lazy val benchmark = project.
-  settings(
-    commonSettings,
-    mainClass in(Jmh, run) := Option("scroll.benchmarks.RunnerApp")
-  ).
-  enablePlugins(JmhPlugin).
-  dependsOn(core)
