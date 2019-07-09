@@ -1,6 +1,6 @@
 mainClass in (Compile, run) := Some("UniversityExample")
 
-lazy val ttcrsync = (project in file(".")).
+lazy val SCROLLPersistence = (project in file(".")).
   settings(
     name := "SCROLLPersistence",
     version := "0.1",

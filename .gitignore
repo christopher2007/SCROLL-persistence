@@ -11,7 +11,7 @@ source_gen*
 .settings/
 /bin/
 classes/
-corePersistence/src/main/scala/META-INF/
+META-INF/
 .gitattributes
 .gitlab-ci.yml
 .travis.yml
