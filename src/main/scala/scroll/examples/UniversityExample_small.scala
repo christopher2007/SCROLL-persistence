@@ -108,8 +108,8 @@ object UniversityExample_small {
       println("----- Anzahl der gefundenen NTs (wir erwarten jetzt nach dem Löschen 0): " + hansSelectList3.size())
 
       // Oder, um einfach absolut alles zu speichern und zu laden (rekursiv durch absolut alles, siehe Wiki für mehr Informationen):
-      Database.groundOperations().createOrUpdateRecursive(this) // alles speichern, von dem übergebenen CT aus
-      val allCTsFound = Database.groundOperations().selectRecursive() // alles laden, was in der Datenbank liegt
+//      Database.groundOperations().createOrUpdateRecursive(this) // alles speichern, von dem übergebenen CT aus
+//      val allCTsFound = Database.groundOperations().selectRecursive() // alles laden, was in der Datenbank liegt
     }
 
     // Anwendung vollständig beenden

@@ -8,7 +8,7 @@ lazy val SCROLLPersistence = (project in file(".")).
     sbtVersion := "1.2.8",
     libraryDependencies ++= Seq(
       // SCROLL selbst
-      "com.github.max-leuthaeuser" %% "scroll" % "1.8",
+      "com.github.max-leuthaeuser" %% "scroll" % "1.9",
 
       // Datenbank
       "mysql" % "mysql-connector-java" % "8.0.13", // MySQL

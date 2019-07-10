@@ -88,6 +88,15 @@ public class Serializer {
                 continue;
             }
 
+            // Einige SCROLl Spezifischen Variablen ignorieren
+            //TODO das ist extem schlecht und blöd. Hier müsste man sich dringend etwas anderes einfallen lassen !!!
+            String[] variableExceptions = {"bitmap$0", "cached", "checkForCycles", "XOR$module", "WithResult$module",
+                    "WithProperty$module", "Types$module", "RoleGroup$module", "Relationship$module", "RoleGroup$module",
+                    "Relationship$module", "OR$module", "NOT$module", "MatchAny$module", "AND$module"};
+            if(Arrays.asList(variableExceptions).contains(fieldOriginalNt.getName()))
+                continue;
+//            System.out.println("xxxxxxxxxxxxxxxxxxxxxx           "+fieldOriginalNt.getName());
+
             // normales setzen eines Attributs
             fieldOriginalNt.set(newObj, variablesSelected.get(fieldOriginalNt.getName()));
         }

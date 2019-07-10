@@ -9,7 +9,7 @@ import java.util.UUID;
 public class CacheHelperUUID {
 
     // Der Cache selbst
-    private HashMap<UUID, _meta> cache;
+    private HashMap<UUID, _meta> cache = new HashMap<>();
 
     /**
      * Ist die UUID des übergebenen Objektes noch nicht im Cache enthalten, wird das neue Objekt zum Cache hinzugefügt.
