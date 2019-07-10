@@ -11,14 +11,12 @@ source_gen*
 .settings/
 /bin/
 classes/
-META-INF/
 .gitattributes
 .gitlab-ci.yml
 .travis.yml
 benchmark/
 core/
 
-
-
 #project/
 
+META-INF/
