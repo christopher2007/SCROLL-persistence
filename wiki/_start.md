@@ -8,5 +8,6 @@ Inhalt:
   - [Entscheidungen der Konzeption](Entscheidungen-der-Konzeption)
   - [Hürden, Probleme und Limitierungen](Hürden,-Probleme-und-Limitierungen)
   - [Haupt-Problem/-Kritik](Haupt-Problem--Kritik)
+- [Hauptbeispiel in RoDEL](Hauptbeispiel-in-RoDEL)
 - [Zukunfts Ausblicke](Zukunfts-Ausblicke)
 - [alte Code-Ansätze](alte-Code-Ansätze)
