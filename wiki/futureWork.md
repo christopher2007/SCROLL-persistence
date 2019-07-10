@@ -2,6 +2,10 @@
 
 Mögliche in der Zukunft anzugehende Aufgaben:
 
+1. Repository als Maven Dependency zum Einbinden für andere Projekte bereitstellen
+
+1. Wiki und Kommentare im Source Code auf Englisch umschreiben, um die Forschung einer breiteren Masse zugänglich zu machen.
+
 1. Zyklenerkennung beim speichern und Laden einführen (Die Hilfsklasse `CacheHelperUUID` bietet hier eine sehr gute Grundlage. Diesen Ansatz
    sollte man weiter verfolgen und flächendeckend einsetzen.)
 
@@ -12,4 +16,7 @@ Mögliche in der Zukunft anzugehende Aufgaben:
 1. Multi Compartments gibt es in SCROLL, nicht aber in SCROLL-persistence. Diese waren nicht Teil der Aufgabe, könnten aber nachträglich
    noch implementiert werden.
 
-1. Und allgemein jede im Source Code vermerkter Kommentar mit `TODO`.
+1. Wiki und Kommentare im Source Code auf Englisch umschreiben, um die Forschung einer breiteren Masse zugänglich zu machen.
+
+Viele der Stellen im Source Code der hier augeführten Punkte wurden für einen späteren einfacheren Einstieg bereits
+mit `TODO` gekennzeichnet. Nach diesem Schlagwort zu suchen kann daher Zeit sparen und allgemein helfen.

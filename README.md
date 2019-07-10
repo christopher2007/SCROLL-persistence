@@ -1,12 +1,11 @@
 # SCROLL persistence
 
-Eine Implementierung für Persistierung des Projektes `SCROLL` (_SCala ROLes Language_):  
-https://github.com/max-leuthaeuser/SCROLL  
+Persistence framework für die Rollen-basierte Programmiersprache [SCROLL](https://github.com/max-leuthaeuser/SCROLL) (_SCala ROLes Language_)
   
 Siehe Wiki für API und Dokumentation:
 
-- für [SCROLL](https://github.com/max-leuthaeuser/SCROLL/wiki) (SCROLL selbst, Grundlegendes, externes Repository)
-- für [SCROLL-persistence](https://github.com/christopher2007/SCROLL-persistence/wiki) (nur die Persistierung von SCROLL, dieses Repository)
+- Wiki von [SCROLL](https://github.com/max-leuthaeuser/SCROLL/wiki) (SCROLL selbst, Grundlegendes, **externes Repository**)
+- Wiki von [SCROLL-persistence](https://github.com/christopher2007/SCROLL-persistence/wiki) (Persistierung von SCROLL, **dieses Repository**)
 
 
 
@@ -16,6 +15,12 @@ Dem Projekt liegen zwei Beispiele im Ordner `/src/main/scala/scroll/examples` be
 
 - `UniversityExample_small` Ein kleines Beispiel einer Universität. Sehr übersichtlich und gut für Einsteiger.
 - `UniversityExample_large` Ein größeres Beispiel einer Universität. Komplexer und gut für Fortgeschrittene.
+
+
+
+## Weiterentwicklung
+
+Jeder, der gerne an der Weiterentwicklung mitwirken möchte, möge sich einfach bei mir melden. (Github Issue, E-Mail, ...)
 
 
 
