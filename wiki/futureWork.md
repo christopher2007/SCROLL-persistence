@@ -18,5 +18,7 @@ Mögliche in der Zukunft anzugehende Aufgaben:
 
 1. Wiki und Kommentare im Source Code auf Englisch umschreiben, um die Forschung einer breiteren Masse zugänglich zu machen.
 
+1. Mehr und komplexere Testfälle abdecken.
+
 Viele der Stellen im Source Code der hier augeführten Punkte wurden für einen späteren einfacheren Einstieg bereits
 mit `TODO` gekennzeichnet. Nach diesem Schlagwort zu suchen kann daher Zeit sparen und allgemein helfen.

@@ -305,18 +305,19 @@ public class _RT {
         return results;
     }
 
-    public void test(MetaPersistenceRt rtObj) throws NoSuchFieldException, IllegalAccessException {
-        // Das Compartment ermitteln, das um den RT liegt
-        Class<?> c = BasicClassInformation.getClass(rtObj);
-        Field f = c.getDeclaredField("$outer");
-        f.setAccessible(true);
-//        Compartment compartment = (Compartment) f.get(rtObj);
-        MetaPersistenceCt compartment = (MetaPersistenceCt) f.get(rtObj);
-//        UUID compartmentUUID = HelperGetUUID.getUUID(compartment);
-        UUID compartmentUUID = compartment.uuid_();
-
-        // Konsolen-Ausgabe
-        Serializer.printAllFields(compartment);
-    }
+    //TODO brauche ich das noch? was habe ich hier getestet?
+//    public void test(MetaPersistenceRt rtObj) throws NoSuchFieldException, IllegalAccessException {
+//        // Das Compartment ermitteln, das um den RT liegt
+//        Class<?> c = BasicClassInformation.getClass(rtObj);
+//        Field f = c.getDeclaredField("$outer");
+//        f.setAccessible(true);
+////        Compartment compartment = (Compartment) f.get(rtObj);
+//        MetaPersistenceCt compartment = (MetaPersistenceCt) f.get(rtObj);
+////        UUID compartmentUUID = HelperGetUUID.getUUID(compartment);
+//        UUID compartmentUUID = compartment.uuid_();
+//
+//        // Konsolen-Ausgabe
+//        Serializer.printAllFields(compartment);
+//    }
 
 }

@@ -116,7 +116,7 @@ object UniversityExample_large {
     val uni = new University {
       // In dem CT Dinge tun ...
 
-/*
+
       // Eigene Klassenvariablen der Univresität
       this.country = "Deutschland"
 
@@ -125,7 +125,7 @@ object UniversityExample_large {
       // === NT
       println("----- NT")
 
-      // insert
+      // create
       val hans = new Person("Hans Günter")
       Database.nt.createOrUpdate(hans)
 
@@ -164,7 +164,7 @@ object UniversityExample_large {
       // === NT playing RT
       println("----- NT playing RT")
 
-      // insert
+      // create
       val hansPlaying = new Person("Hans Günter")
       val studentHans = new Student
       studentHans.matNr = 12345
@@ -209,20 +209,12 @@ object UniversityExample_large {
         classOf[Student], "matNr", 6789, true, this) // Zurück kommt immer eine Liste von `ReturnRT`. Enthalten auf jeden falld er RT und ggf alle Spieler, falls angefragt
       println("----- Anzahl der gefundenen RTs 3: " + studentHansSelectList3.size())
 
-      println("xxxxxxxxxxxxxxxxxxxxxxx 2")
-      studentHansSelectList2.get(0).players.get(0).asInstanceOf[Person].roles()
-      println("xxxxxxxxxxxxxxxxxxxxxxx 2")
-
-      println("xxxxxxxxxxxxxxxxxxxxxxx 3")
-      Database.rt.test(studentHans)
-      println("xxxxxxxxxxxxxxxxxxxxxxx 3")
-
 
 
       // === CT playing RT
       println("----- CT playing RT")
 
-      // insert
+      // create
       // exakt analog zu `NT playing RT`
       val uni2 = new University{} // hier wird nun ein CT in einem CT erzeugt, macht semantisch keinen Sinn, aber im Zuge des Beispiels egal
       val studentUni = new Student
@@ -235,34 +227,17 @@ object UniversityExample_large {
       // Überwiegend analog zu NT bzw. RT playing NT. Hier nur mit CT statt NT (beides aber rigide Typen)
       println("----- CT")
 
-      // insert
+      // create
       this.country = "Deutschland"
       Database.ct.createOrUpdate(this)
 
       // delete
 //      Database.ct.delete(this) // geht hier nicht, da im CT noch RTs enthalten sind. Diese müssten zuerst gelöscht werden
 
-*/
 
 
-
-
-
-/*
-      val hans = new Person("Hans Irgendwas")
-      val student2 = new Student
-      student2.matNr = 6789
-      hans play student2
-      Database.rt.createOrUpdate(student2, true, true)
-*/
-
-
-
-
-
-
-      Database.rt.select(classOf[Student], "matNr", 6789, true, this)
-
+      // === Über alle Spieler iterieren und diese in der Konsole dumpen
+      //Database.rt.select(classOf[Student], "matNr", 6789, true, this)
       Serializer.printAllFields(this.allPlayers)
       for(obj <- this.allPlayers){
         println("=============================")
@@ -271,57 +246,6 @@ object UniversityExample_large {
           Serializer.printAllFields(inner)
         }
       }
-
-
-
-
-
-
-
-
-
-
-      // === Rollen ermitteln
-//      hansSelect.roles()
-//      allPlayers()
-
-
-
-//      // === RT
-//
-//      // insert
-//      val student2 = new Student
-//      val student3 = new Student
-//      hans play student2
-//      hans play student3
-//      uwe play student2
-//      println("hans.roles() = " + hans.roles())
-//      println("uwe.roles() = " + uwe.roles())
-//      println("allPlayers = " + allPlayers)
-//      Database.rt.createOrUpdate(student2, true, true)
-
-
-
-
-
-
-//      hans.talk()
-//
-//      val student = new Student
-//      println("Player equals core: " + ((hans play student) == hans))
-//      +hans talk()
-//
-//      println((+student).name)
-//      println("Role core equals core: " + (+student == hans))
-//
-//      uwe play new Professor
-//      +uwe talk()
-//      println("Core equals core playing a role: " + (+uwe == uwe))
-//
-//      +uwe teach hans
-
-
-
 
     }
 
