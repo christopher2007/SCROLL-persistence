@@ -1,7 +1,7 @@
 package scroll.examples
 
 import java.util
-import java.util.Date
+import java.util.{Date, List}
 
 import scroll.persistence.Database
 import scroll.persistence.Inheritance.{MetaPersistenceCt, MetaPersistenceNt, MetaPersistenceRt}
@@ -106,6 +106,10 @@ object UniversityExample_small {
       var hansSelectList3: util.List[Person] = Database.nt.select(
         classOf[Person], "name", "Hans Jürgen").asInstanceOf[util.List[Person]]
       println("----- Anzahl der gefundenen NTs (wir erwarten jetzt nach dem Löschen 0): " + hansSelectList3.size())
+
+      // Oder, um einfach absolut alles zu speichern und zu laden (rekursiv durch absolut alles, siehe Wiki für mehr Informationen):
+      Database.groundOperations().createOrUpdateRecursive(this) // alles speichern, von dem übergebenen CT aus
+      val allCTsFound = Database.groundOperations().selectRecursive() // alles laden, was in der Datenbank liegt
     }
 
     // Anwendung vollständig beenden
