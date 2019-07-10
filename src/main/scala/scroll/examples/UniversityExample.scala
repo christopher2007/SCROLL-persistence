@@ -7,6 +7,7 @@ import javax.persistence._
 import scroll.persistence.Database
 import java.util
 import java.util.List
+import java.util.Date
 
 import scroll.examples.UniversityExample.Person
 import scroll.persistence.Inheritance.{MetaPersistenceCt, MetaPersistenceNt, MetaPersistenceRt}
@@ -14,18 +15,52 @@ import scroll.persistence.Util.{ReturnRT, Serializer}
 
 object UniversityExample {
 
-//  class University extends Compartment {
+  // ===== NTs
+
+  class Person(var name: String) extends MetaPersistenceNt {
+    var birthday: Date = _
+
+    def talk(): Unit = {
+      println("----- I am a person")
+    }
+  }
+
+  class Animal(var name: String) extends MetaPersistenceNt {
+    var birthday: Date = _
+    var race: String = _
+
+    def talk(): Unit = {
+      println("----- I am an animal")
+    }
+  }
+
+  class Furniture extends MetaPersistenceNt {
+    var color: String = _
+    var material: String = _
+
+    def talk(): Unit = {
+      println("----- I am a furniture")
+    }
+  }
+
+  // ===== CTs mit deren enthaltenen RTs
+
   class University extends MetaPersistenceCt {
+    var name: String = _
     var country: String = _
+    var city: String = _
 
     class Student extends MetaPersistenceRt {
       var matNr: Int = _
+
       def talk(): Unit = {
         println("----- I am a student")
       }
     }
 
     class Professor extends MetaPersistenceRt {
+      var graduation: String = _
+
       def teach(student: Person): Unit = student match {
         case s if (+s).isPlaying[Student] =>
           val studentName: String = (+student).name
@@ -38,18 +73,51 @@ object UniversityExample {
       }
     }
 
-  }
+    class Mailbox extends MetaPersistenceRt {
+      var newMessages: Boolean = _
 
-  class Person(var name: String) extends MetaPersistenceNt {
-    def talk(): Unit = {
-      println("----- I am a person")
+      def talk(): Unit = {
+        println("----- I am a mailbox")
+      }
+    }
+
+    class Classroom(var seatCount: Int) extends MetaPersistenceRt {
+      def talk(): Unit = {
+        println("----- I am a classroom")
+      }
     }
   }
+
+  class Room(var size: Float) extends MetaPersistenceCt {
+    var windowCount: Int = _
+
+    class Chair extends MetaPersistenceRt {
+      var footCount: Int = _
+
+      def talk(): Unit = {
+        println("----- I am a chair")
+      }
+    }
+
+    class Table extends MetaPersistenceRt {
+      var footCount: Int = _
+      var form: String = _
+
+      def talk(): Unit = {
+        println("----- I am a table")
+      }
+    }
+  }
+
+  // ===== Ein Szenario auf Instanzebene erzeugen und damit spielen
 
   def main(args: Array[String]): Unit = {
     println("===== START =====")
 
+    // einen CT erzeugen
     val uni = new University {
+      // In dem CT Dinge tun ...
+
 /*
       // Eigene Klassenvariablen der Univresität
       this.country = "Deutschland"
