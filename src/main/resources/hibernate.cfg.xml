@@ -7,35 +7,81 @@
 
     <session-factory>
 
-        <!-- Database connection settings -->
-        <!--<property name="hibernate.connection.url">jdbc:mysql://localhost:3306/scroll</property>-->
-        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/scroll?serverTimezone=UTC</property>
-        <property name="hibernate.connection.username">scroll</property>
-        <property name="hibernate.connection.password">geheim100</property>
-        <property name="hibernate.connection.autocommit">true</property>
+        <!--
+            ==================================================================================================
+            Bitte hier im folgenden alle Variablen, die mit `\\\...///` eingeschlossen sind, austauschen.
+        -->
+
+        <!-- Datenbank Benutzer -->
+        <property name="hibernate.connection.username">\\\Benutzername///</property>
+        <property name="hibernate.connection.password">\\\Passwort///</property>
+
+
+
+        <!--
+            ==================================================================================================
+            Bitte hier im folgenden für MySQL oder PostgreSQL entscheiden.
+            Auch in der URL den Datenbanknamen austauschen.
+            -> default: MySQL
+            -> für PostgreSQL müssen auch in anderen Dateien noch Änderungen gemacht werden
+        -->
+
+        <!-- MySQL -->
+        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/datenbankname?serverTimezone=UTC</property>
+
+        <!-- PostgreSQL -->
+<!--        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>-->
+<!--        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>-->
+<!--        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/datenbankname?serverTimezone=UTC</property>-->
+
+
+
+        <!--
+            ==================================================================================================
+            Bitte hier im folgenden für einen Modus entscheiden
+        -->
+
+        <!-- what to do with the database schema on startup? -->
+        <property name="hibernate.hbm2ddl.auto">create</property>
+        <!--
+            erlaubte Werte:
+            - `create` = Drop and re-create the database schema on startup
+            - `update` = update database schema on startup
+            - `validate` =validates the database schema on startup, no changes
+        -->
+
+
+
+        <!--
+            ==================================================================================================
+            Bitte hier im folgenden für eine Log Variante entscheiden
+        -->
+
+        <!-- Echo all executed SQL to stdout -->
+        <property name="hibernate.show_sql">true</property>
+        <!--
+            erlaubte Werte:
+            - `true` = Im Entwicklungs Modus (Dev)
+            - `false` = Im Produktivbetrieb (Prod)
+        -->
+
+
+
+        <!--
+            ==================================================================================================
+            !!! Ab hier nichts mehr ändern !!!
+        -->
 
         <!-- JDBC connection pool (use the built-in) -->
         <!--<property name="hibernate.connection.pool_size">1</property>-->
 
-        <!-- Treiber Klasse -->
-        <!--<property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>-->
-        <property name="hibernate.connection.driver_class">com.mysql.cj.jdbc.Driver</property>
-
-        <!-- SQL dialect -->
-        <property name="hibernate.dialect">org.hibernate.dialect.MySQL5InnoDBDialect</property>
+        <!-- Auto Commit -->
+        <property name="hibernate.connection.autocommit">true</property>
 
         <!-- Disable the second-level cache -->
         <!--<property name="hibernate.cache.provider_class">org.hibernate.cache.internal.NoCacheProvider</property>-->
-
-        <!-- Echo all executed SQL to stdout -->
-        <property name="hibernate.show_sql">true</property>
-        <!--<property name="hibernate.show_sql">false</property>-->
-
-        <!-- what to do with the database schema on startup? -->
-        <property name="hibernate.hbm2ddl.auto">create</property>
-        <!--<property name="hibernate.hbm2ddl.auto">create</property> &lt;!&ndash; Drop and re-create the database schema on startup &ndash;&gt;-->
-        <!--<property name="hibernate.hbm2ddl.auto">update</property> &lt;!&ndash; update database schema on startup &ndash;&gt;-->
-        <!--<property name="hibernate.hbm2ddl.auto">validate</property> &lt;!&ndash; validates the database schema on startup, no changes &ndash;&gt;-->
 
         <!-- Names the annotated entity class -->
         <!--<mapping class="persistencelayer.Project"/>-->

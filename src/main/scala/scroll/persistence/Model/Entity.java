@@ -27,7 +27,8 @@ abstract public class Entity {
     @OnDelete(action = OnDeleteAction.CASCADE)
     public Set<Variable> variables;
 
-    @Column(columnDefinition = "BINARY(16)", nullable=false, unique = true)
+    @Column(columnDefinition = "BINARY(16)", nullable=false, unique = true) // für MySQL
+    //@Column(columnDefinition = "BYTEA", nullable=false, unique = true) // für PostgreSQL
     public UUID uuid_;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
