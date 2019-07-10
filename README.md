@@ -1,6 +1,6 @@
 # SCROLL persistence
 
-Persistence framework für die Rollen-basierte Programmiersprache [SCROLL](https://github.com/max-leuthaeuser/SCROLL) (_SCala ROLes Language_)
+Persistenz Framework für die Rollen-basierte Programmiersprache [SCROLL](https://github.com/max-leuthaeuser/SCROLL) (_SCala ROLes Language_)
   
 Siehe Wiki für API und Dokumentation:
 
