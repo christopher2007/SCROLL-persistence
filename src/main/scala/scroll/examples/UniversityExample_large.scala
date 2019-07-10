@@ -1,6 +1,5 @@
 package scroll.examples
 
-//import com.github.fluent.hibernate.cfg.scanner.EntityScanner
 import scroll.internal.Compartment
 import org.hibernate._
 import javax.persistence._
@@ -8,12 +7,11 @@ import scroll.persistence.Database
 import java.util
 import java.util.List
 import java.util.Date
-
-import scroll.examples.UniversityExample.Person
+import scroll.examples.UniversityExample_large.Person
 import scroll.persistence.Inheritance.{MetaPersistenceCt, MetaPersistenceNt, MetaPersistenceRt}
 import scroll.persistence.Util.{ReturnRT, Serializer}
 
-object UniversityExample {
+object UniversityExample_large {
 
   // ===== NTs
 
@@ -327,6 +325,7 @@ object UniversityExample {
 
     }
 
-    System.exit(0) // anderenfalls beendet die Anwendung nicht
+    // Anwendung vollständig beenden
+    System.exit(0) // anderenfalls läuft der Prozess weiter (danke Spring)
   }
 }

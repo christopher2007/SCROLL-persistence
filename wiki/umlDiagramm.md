@@ -18,7 +18,11 @@ leicht verändert und zu Ansatz 5 umgestellt. Dies ist der letzte und umgesetzte
 
 ## Beispielprojekt
 
-Ein komplettes Beispiel für einen möglichen Einsatz von SCROLL liegt dem Projekt im Ordner `/uml/example project/` bei.
+Zwei komplette Beispiele für mögliche Einsätze von SCROLL liegen dem Projekt als UML Diagramme im Ordner
+`/uml/example project/` bei:
 
-Dieses Hauptbeispiel wird sowohl in dem Beispielbereich, als auch in den Testfällen des Projektes verwendet.  
-Für ein großes einheitliches Beispiel, das sich durch das Projekt zieht.
+- Universitäts Beispiel klein
+- Universitäts Beispiel groß
+
+Diese Hauptbeispiele werden sowohl in dem Beispielbereich, als auch in den Testfällen des Projektes verwendet.  
+Beide Beispiele ziehen sich durch alle Bereiche des Projektes.

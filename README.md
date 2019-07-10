@@ -10,6 +10,15 @@ Siehe Wiki für API und Dokumentation:
 
 
 
+## Beispiele
+
+Dem Projekt liegen zwei Beispiele im Ordner `/src/main/scala/scroll/examples` bei:
+
+- `UniversityExample_small` Ein kleines Beispiel einer Universität. Sehr übersichtlich und gut für Einsteiger.
+- `UniversityExample_large` Ein größeres Beispiel einer Universität. Komplexer und gut für Fortgeschrittene.
+
+
+
 ## Stand des Projektes `SCROLL-persistence`
 
 Durchgestrichene Features wurden bewusst nicht entwickelt. Dies kann einen von folgenden zwei Gründen haben, was jedoch dokumentiert
