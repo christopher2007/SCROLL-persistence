@@ -49,19 +49,6 @@ object UniversityExample_small {
       }
     }
 
-    class Mailbox extends MetaPersistenceRt {
-      var newMessages: Boolean = _
-
-      def talk(): Unit = {
-        println("----- I am a mailbox")
-      }
-    }
-
-    class Classroom(var seatCount: Int) extends MetaPersistenceRt {
-      def talk(): Unit = {
-        println("----- I am a classroom")
-      }
-    }
   }
 
   // ===== Ein Szenario auf Instanzebene erzeugen und damit spielen
