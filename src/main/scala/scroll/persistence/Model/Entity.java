@@ -28,7 +28,8 @@ abstract public class Entity {
     public Set<Variable> variables;
 
     @Column(columnDefinition = "BINARY(16)", nullable=false, unique = true) // für MySQL
-    //@Column(columnDefinition = "BYTEA", nullable=false, unique = true) // für PostgreSQL
+//    @Column(columnDefinition = "BYTEA", nullable=false, unique = true) // für PostgreSQL
+//    @Column(nullable=false, unique = true) // für PostgreSQL, alte Versionen
     public UUID uuid_;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)

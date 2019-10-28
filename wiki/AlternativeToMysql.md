@@ -20,11 +20,13 @@ In der `hibernate.cfg.xml` folgendes ändern:
 In der `build.sbt` folgendes ändern:
 
 - Die Zeile mit dem Präfix `"mysql" % "mysql-connector-java"` entfernen
-- An diese Stelle nun folgendes einfügen: `"org.postgresql" % "postgresql" % "9.4-1200-jdbc41",`  
+- An diese Stelle nun folgendes einfügen: `"org.postgresql" % "postgresql" % "42.2.8",`  
   Die Version bitte prüfen und ggf eine neuere nutzen.
 
 Zudem verwendet MySQL andere Typ Mappings wie PostgreSQL.  
 Grundlegende Informationen dazu: https://www.convert-in.com/mysql-to-postgres-types-mapping.htm  
 Konkret bedeutet dies folgende notwendige Änderungen in Entity-Klassen:
 
-- In `Entity.java` von der Variable `public UUID uuid_;` die `columnDefinition` statt `BINARY(16)` ändern zu `BYTEA`
+- In `Entity.java` von der Variable `public UUID uuid_;` die `columnDefinition`, welche aktuell auf `BINARY(16)` steht, weg löschen.  
+Nur bei sehr alten PostgreSQL Versionen muss `BINARY(16)` zu `BYTEA` geändert werden. Neue PostgreSQL Versionen haben aber intern bereits einen
+UUID Datentyp und benötigen daher kein manuelles Setzen einer `columnDefinition`.

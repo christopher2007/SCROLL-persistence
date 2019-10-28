@@ -12,7 +12,8 @@ lazy val SCROLLPersistence = (project in file(".")).
 
       // Datenbank
       "mysql" % "mysql-connector-java" % "8.0.13", // MySQL
-//      "org.postgresql" % "postgresql" % "9.4-1200-jdbc41", // PostgreSQL
+//      "org.postgresql" % "postgresql" % "42.2.8", // PostgreSQL
+//      "org.postgresql" % "postgresql" % "9.4-1200-jdbc41", // PostgreSQL, alte Version
 
       // Hibernate
       "org.hibernate" % "hibernate-core" % "5.3.7.Final",
